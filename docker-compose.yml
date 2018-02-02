@@ -1,0 +1,6 @@
+version: '2'
+services:
+  parser_package_tracking:
+    build: ./parsers/package-tracking
+    ports:
+      - "8183:3000"

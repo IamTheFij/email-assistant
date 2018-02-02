@@ -1,0 +1,6 @@
+version: '2'
+services:
+  main:
+    build: .
+    ports:
+      - "127.0.0.1:8183:3000"

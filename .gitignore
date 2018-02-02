@@ -122,3 +122,4 @@ _testmain.go
 *.test
 *.prof
 
+.DS_Store

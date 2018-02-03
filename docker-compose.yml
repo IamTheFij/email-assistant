@@ -4,11 +4,16 @@ services:
     build: ./crawler
     links:
       - parser_package_tracking
+      - indexer
     environment:
       IMAP_URL: my.iamthefij.com
       IMAP_USER: iamthefij@iamthefij.com
       IMAP_PASS: "${IMAP_PASS}"
       PARSER_1: http://parser_package_tracking:3000
+  indexer:
+    build: ./indexer
+    ports:
+      - "8181:5000"
   parser_package_tracking:
     build: ./parsers/package-tracking
     ports:

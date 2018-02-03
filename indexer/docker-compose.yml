@@ -3,6 +3,6 @@ services:
   main:
     build: .
     volumes:
-      - .:/src
+      - .:/usr/src/app
     ports:
-      - "8183:3000"
+      - "8181:5000"

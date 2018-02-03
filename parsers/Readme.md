@@ -24,7 +24,8 @@ Request:
 
 |Key     |Example Value                                        |Description|
 |--------|-----------------------------------------------------|-----------|
-|`"message"`   |`"Here's your tracking number: 1Z879E930346834440"`|Full contents of the email message|
+|`"message"`|`"Here's your tracking number: 1Z879E930346834440"`|Full contents of the email message|
+|`"subject"`|`"Your email is here"`|Full contents of the email message|
 
 Response:
 

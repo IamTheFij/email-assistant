@@ -1,12 +1,10 @@
 version: '2'
 services:
-  crawler:
-    build: ./crawler
+  main:
+    build: .
+    volumes:
+      - .:/usr/src/app
     environment:
       IMAP_URL: my.iamthefij.com
       IMAP_USER: iamthefij@iamthefij.com
       IMAP_PASS: "${IMAP_PASS}"
-  parser_package_tracking:
-    build: ./parsers/package-tracking
-    ports:
-      - "8183:3000"

@@ -13,6 +13,7 @@ VALID_CONTENT_TYPES = [ 'text/plain', 'text/html' ]
 
 class MailCrawler(object):
     parser_hosts = None
+    indexer_host = os.environ["INDEXER"]
 
     def __init__(self):
         self.imap_url = os.environ['IMAP_URL']
@@ -71,6 +72,14 @@ class MailCrawler(object):
                     return text
         return None
 
+    def index_message(self, message):
+        response = requests.post(
+            self.indexer_host+'/token',
+            json=message,
+        )
+        response.raise_for_status()
+        return response.json()
+
     def run(self):
         server = self.get_server()
         server.select_folder('INBOX')
@@ -81,7 +90,8 @@ class MailCrawler(object):
                 result.update({
                     'subject': email_message['SUBJECT'],
                 })
-                print(result)
+                print("Parsed result: ", result)
+                print("Indexed result: ", self.index_message(result))
 
 
 if __name__ == '__main__':

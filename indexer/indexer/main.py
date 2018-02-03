@@ -43,11 +43,10 @@ class EmailToken(db.Model):
     @classmethod
     def from_json(cls, data):
         metadata = data.get('metadata')
-        if metadata:
-            try:
-                metadata = json.dumps(metadata)
-            except TypeError:
-                pass
+        try:
+            metadata = json.dumps(metadata)
+        except TypeError as err:
+            print('Error dumping metadata', err, file=sys.stderr)
 
         return cls(
             subject=data.get('subject'),
@@ -76,6 +75,7 @@ def check():
 def create_tokens():
     """Creates a token from posted JSON request"""
     if request.is_json:
+        print('Got a json request', file=sys.stderr)
         print(request.get_json(), file=sys.stderr)
     else:
         print('Not a json request', file=sys.stderr)

@@ -19,7 +19,9 @@ post '/parse' do
         results.push({
             :token => tracker.tracking_number,
             :type => "SHIPPING",
-            :metadata => {}
+            :metadata => {
+                :carrier_name => tracker.courier_name,
+            }
         })
     end
     JSON.dump(results)

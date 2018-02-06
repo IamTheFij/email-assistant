@@ -76,18 +76,38 @@ def check():
 @app.route('/token', methods=['POST'])
 def create_tokens():
     """Creates a token from posted JSON request"""
-    if request.is_json:
-        print('Got a json request', file=sys.stderr)
-        print(request.get_json(), file=sys.stderr)
-    else:
-        print('Not a json request', file=sys.stderr)
-        print(request.get_json(force=True), file=sys.stderr)
+    new_token = EmailToken.from_json(request.get_json(force=True))
 
-    token = EmailToken.from_json(request.get_json(force=True))
-    db.session.add(token)
-    db.session.commit()
-    db.session.refresh(token)
-    return jsonify(success=True, record=token.as_dict())
+    existing_token = EmailToken.query.filter_by(
+        token=new_token.token,
+        token_type=new_token.token_type,
+    ).first()
+
+    print(
+        'Received token with value {} and type {}'.format(
+            new_token.token,  new_token.token_type
+        ), file=sys.stderr
+    )
+
+    print('Existing token? ', existing_token, file=sys.stderr)
+
+    if not existing_token:
+        print('No existing token, creating a new one', file=sys.stderr)
+        db.session.add(new_token)
+        db.session.commit()
+        db.session.refresh(new_token)
+        return jsonify(
+            success=True,
+            created=True,
+            record=new_token.as_dict()
+        )
+    else:
+        print('Found an existing token', file=sys.stderr)
+        return jsonify(
+            success=True,
+            created=False,
+            record=existing_token.as_dict()
+        )
 
 
 @app.route('/token', methods=['GET'])

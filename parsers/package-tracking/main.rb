@@ -8,6 +8,10 @@ set :port, 3000
 def get_tracking_url(tracker)
     tracking_urls = {
         :ups => 'https://wwwapps.ups.com/WebTracking/track?track=yes&trackNums=%s',
+        :dhl => 'http://www.dhl.com/en/express/tracking.html?brand=DHL&AWB=%s',
+        :fedex => 'https://www.fedex.com/apps/fedextrack/?tracknumbers=%s',
+        :ontrac => 'http://www.ontrac.com/trackingres.asp?tracking_number=%s',
+        :usps => 'https://m.usps.com/m/TrackConfirmAction_detail?tLabels=%s',
     }
     tracking_url = tracking_urls[tracker.courier_code]
     if tracking_url != nil

@@ -3,7 +3,7 @@ services:
   main:
     build: .
     environment:
-      SQLALCHEMY_DATABASE_URI: sqlite:///tokens.db
+      SQLALCHEMY_DATABASE_URI: sqlite:////usr/src/app/tokens.db
     volumes:
       - .:/usr/src/app
     ports:

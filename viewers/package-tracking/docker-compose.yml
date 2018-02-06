@@ -2,9 +2,11 @@ version: '2'
 services:
   main:
     build: .
-    environment:
-      INDEXER_URL: http://localhost:8181
     volumes:
-      - .:/usr/src/app
+      - .:/src
+    environment:
+      UPS_KEY: ${UPS_KEY}
+      UPS_USER_ID: ${UPS_USER_ID}
+      UPS_PASSWORD: ${UPS_PASSWORD}
     ports:
-      - "8184:5000"
+      - "8185:3000"

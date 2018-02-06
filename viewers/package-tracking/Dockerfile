@@ -1,8 +1,14 @@
-FROM python:3.6-onbuild
+FROM ruby:2.5.0
 
-ENV FLASK_DEBUG=1
+# TODO: Move to Gemfile
+RUN gem install trackerific -v 0.8.0
+RUN gem install sinatra -v 2.0
 
-EXPOSE 5000
+EXPOSE 3000
 
-# TODO: Track debug in env and use threads
-CMD python -m viewer.main
+RUN mkdir -p /src
+WORKDIR /src
+
+COPY main.rb  /src/
+
+CMD ruby main.rb

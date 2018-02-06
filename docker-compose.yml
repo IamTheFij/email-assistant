@@ -19,13 +19,22 @@ services:
     build: ./parsers/package-tracking
     ports:
       - "8183:3000"
-  viewer_package_tracking:
-    build: ./viewers/package-tracking
+  viewer_main:
+    build: ./viewers/main
     volumes:
-      - ./viewers/package-tracking:/usr/src/app
+      - ./viewers/main:/usr/src/app
     links:
       - indexer
+      - viewer_package_tracking
     environment:
       INDEXER_URL: http://indexer:5000
     ports:
       - "8184:5000"
+  viewer_package_tracking:
+    build: ./viewers/package-tracking
+    environment:
+      UPS_KEY: ${UPS_KEY}
+      UPS_USER_ID: ${UPS_USER_ID}
+      UPS_PASSWORD: ${UPS_PASSWORD}
+    ports:
+      - "8185:3000"

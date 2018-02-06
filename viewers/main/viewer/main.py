@@ -25,8 +25,19 @@ def get_tokens():
         params={'filter_type': 'SHIPPING'},
     )
     resp.raise_for_status()
-    print(resp.text, file=sys.stderr)
     tokens = resp.json().get('tokens')
+    for token in tokens:
+        try:
+            resp = requests.get(
+                'http://viewer_package_tracking:3000/info/'+token['token']
+            )
+            resp.raise_for_status()
+            print('Response: ', resp.text, file=sys.stderr)
+            info = resp.json()
+            token['metadata'].update(info)
+        except Exception as e:
+            print('Error', e, file=sys.stderr)
+            pass
     return flask.render_template('shipping.html', trackers=tokens)
 
 

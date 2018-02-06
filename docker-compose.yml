@@ -19,3 +19,13 @@ services:
     build: ./parsers/package-tracking
     ports:
       - "8183:3000"
+  viewer_package_tracking:
+    build: ./viewers/package-tracking
+    volumes:
+      - ./viewers/package-tracking:/usr/src/app
+    links:
+      - indexer
+    environment:
+      INDEXER_URL: http://indexer:5000
+    ports:
+      - "8184:5000"

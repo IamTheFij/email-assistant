@@ -68,9 +68,9 @@ class EmailToken(db.Model):
         return jsonify(tokens=[token.as_dict() for token in results])
 
 
-@app.route("/")
+@app.route('/')
 def check():
-    return "OK"
+    return 'OK'
 
 
 @app.route('/token', methods=['POST'])
@@ -125,6 +125,6 @@ def get_token(token_id):
     return jsonify(token.as_dict())
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     db.create_all()
     app.run(host='0.0.0.0', port=5000)

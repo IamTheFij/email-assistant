@@ -13,7 +13,7 @@ VALID_CONTENT_TYPES = [ 'text/plain', 'text/html' ]
 
 class MailCrawler(object):
     parser_hosts = None
-    indexer_host = os.environ["INDEXER"]
+    indexer_host = os.environ['INDEXER']
 
     def __init__(self):
         self.imap_url = os.environ['IMAP_URL']
@@ -36,15 +36,21 @@ class MailCrawler(object):
     def parse_message(self, message):
         text = self.get_email_text(message)
         if not text:
+            print('No email text returned')
             return []
 
         results = []
         for parser_host in self.get_parsers():
+            # print('Parsing email text... ', text)
             response = requests.post(
                 parser_host+'/parse',
-                json={'message': text},
+                json={
+                    'subject': message['SUBJECT'],
+                    'message': text,
+                },
             )
             response.raise_for_status()
+            print('Got response', response.text)
             results += response.json()
         return results
 
@@ -60,7 +66,11 @@ class MailCrawler(object):
         if not message.is_multipart():
             if self.is_valid_content_type(message):
                 # TODO: Check encoding (maybe CHARSET)
-                return message.get_payload(decode=True).decode("utf-8")
+                try:
+                    return message.get_payload(decode=True).decode('utf-8')
+                except UnicodeDecodeError:
+                    print('Error decoding')
+                    return None
         else:
             content_type_to_payload = {
                 payload.get_content_type(): self.get_email_text(payload)
@@ -81,17 +91,19 @@ class MailCrawler(object):
         return response.json()
 
     def run(self):
+        print('Starting crawler')
         server = self.get_server()
         server.select_folder('INBOX')
         message_ids = server.search(['SINCE', date(2018, 1, 31)])
         for msgid, data in server.fetch(message_ids, 'RFC822').items():
+            print('Fetched message with id ', msgid)
             email_message = email.message_from_bytes(data[b'RFC822'])
             for result in self.parse_message(email_message):
                 result.update({
                     'subject': email_message['SUBJECT'],
                 })
-                print("Parsed result: ", result)
-                print("Indexed result: ", self.index_message(result))
+                print('Parsed result: ', result)
+                print('Indexed result: ', self.index_message(result))
 
 
 if __name__ == '__main__':

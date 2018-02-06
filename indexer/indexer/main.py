@@ -9,8 +9,10 @@ import flask
 
 
 app = flask.Flask(__name__)
-# TODO: use a real database or something
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', 'sqlite:///tokens.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URI',
+    'sqlite:///tokens.db'
+)
 app.config['SQLALCHEMY_ECHO'] = True
 app.config['DEBUG'] = True
 

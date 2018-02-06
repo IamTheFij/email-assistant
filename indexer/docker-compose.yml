@@ -2,6 +2,8 @@ version: '2'
 services:
   main:
     build: .
+    environment:
+      SQLALCHEMY_DATABASE_URI: sqlite:///tokens.db
     volumes:
       - .:/usr/src/app
     ports:

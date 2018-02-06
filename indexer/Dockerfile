@@ -1,6 +1,9 @@
 FROM python:3.6-onbuild
 
-# ENV FLASK_APP=indexer/app.py
+RUN mkdir -p /config
+VOLUME /config
+
+ENV SQLALCHEMY_DATABASE_URI sqlite:////config/tokens.db
 ENV FLASK_DEBUG=1
 
 EXPOSE 5000

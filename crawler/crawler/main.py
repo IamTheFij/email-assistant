@@ -1,10 +1,12 @@
-from getpass import getpass
 from datetime import date
-import json
+from datetime import datetime
+from datetime import timedelta
+from getpass import getpass
 import email
+import json
 import os
 
-from imapclient import IMAPClient
+from imbox import Imbox
 import requests
 
 
@@ -45,7 +47,7 @@ class MailCrawler(object):
             response = requests.post(
                 parser_host+'/parse',
                 json={
-                    'subject': message['SUBJECT'],
+                    'subject': message.subject,
                     'message': text,
                 },
             )
@@ -55,32 +57,19 @@ class MailCrawler(object):
         return results
 
     def get_server(self):
-        server = IMAPClient(self.imap_url, use_uid=True)
-        server.login(self.imap_user, self.imap_pass)
-        return server
-
-    def is_valid_content_type(self, message):
-        return message.get_content_type() in VALID_CONTENT_TYPES
+        return Imbox(
+            self.imap_url,
+            username=self.imap_user,
+            password=self.imap_pass,
+            ssl=True,
+        )
 
     def get_email_text(self, message):
-        if not message.is_multipart():
-            if self.is_valid_content_type(message):
-                # TODO: Check encoding (maybe CHARSET)
-                try:
-                    return message.get_payload(decode=True).decode('utf-8')
-                except UnicodeDecodeError:
-                    print('Error decoding')
-                    return None
-        else:
-            content_type_to_payload = {
-                payload.get_content_type(): self.get_email_text(payload)
-                for payload in message.get_payload()
-            }
-            for content_type in VALID_CONTENT_TYPES:
-                text = content_type_to_payload.get(content_type)
-                if text:
-                    return text
-        return None
+        body = message.body.get('plain') or message.body.get('html')
+        if not body:
+            return None
+        # Concat all known body content together since it doesn't really matter
+        return ''.join([text for text in body if isinstance(text, str)])
 
     def index_message(self, message):
         response = requests.post(
@@ -92,18 +81,22 @@ class MailCrawler(object):
 
     def run(self):
         print('Starting crawler')
-        server = self.get_server()
-        server.select_folder('INBOX')
-        message_ids = server.search(['SINCE', date(2018, 1, 31)])
-        for msgid, data in server.fetch(message_ids, 'RFC822').items():
-            print('Fetched message with id ', msgid)
-            email_message = email.message_from_bytes(data[b'RFC822'])
-            for result in self.parse_message(email_message):
-                result.update({
-                    'subject': email_message['SUBJECT'],
-                })
-                print('Parsed result: ', result)
-                print('Indexed result: ', self.index_message(result))
+
+        with self.get_server() as server:
+            since_date = datetime.now() - timedelta(days=30)
+            for uid, message in server.messages(date__gt=since_date):
+                print(
+                    'Processing message uid {} message_id {} '
+                    'with subject "{}"'.format(
+                        uid, message.message_id, message.subject
+                    )
+                )
+                for result in self.parse_message(message):
+                    result.update({
+                        'subject': message.subject,
+                    })
+                    print('Parsed result: ', result)
+                    print('Indexed result: ', self.index_message(result))
 
 
 if __name__ == '__main__':

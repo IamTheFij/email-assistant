@@ -3,6 +3,7 @@ from datetime import datetime
 from datetime import timedelta
 from getpass import getpass
 from time import sleep
+from imaplib import IMAP4
 import email
 import json
 import os
@@ -129,7 +130,7 @@ class MailCrawler(object):
         # TODO: Put server into some kind of context manager and property
         with self.get_server() as server:
             # TODO: parameterize startup date, maybe relative
-            since_date = datetime.now(tzutc()) - timedelta(days=1)
+            since_date = datetime.now(tzutc()) - timedelta(days=15)
             last_message = 0
             while True:
                 print('Lets process')
@@ -145,4 +146,9 @@ class MailCrawler(object):
 
 
 if __name__ == '__main__':
-    MailCrawler().run()
+    while True:
+        try:
+            MailCrawler().run()
+        except IMAP4.abort:
+            print('Imap abort. We will try to reconnect')
+            pass

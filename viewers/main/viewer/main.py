@@ -15,7 +15,7 @@ indexer_url = os.environ.get('INDEXER_URL', 'http://indexer')
 
 @app.route('/')
 def check():
-    return 'OK'
+    return flask.render_template('home.html')
 
 
 @app.route('/shipping')

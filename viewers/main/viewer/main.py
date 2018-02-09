@@ -1,14 +1,12 @@
 import os
 import sys
 
-from flask_bootstrap import Bootstrap
 import flask
 import requests
 
 
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
-Bootstrap(app)
 
 indexer_url = os.environ.get('INDEXER_URL', 'http://indexer')
 

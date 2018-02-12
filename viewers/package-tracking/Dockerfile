@@ -1,13 +1,13 @@
 FROM ruby:2.5.0
 
-# TODO: Move to Gemfile
-RUN gem install trackerific -v 0.8.0
-RUN gem install sinatra -v 2.0
+RUN mkdir -p /src
+WORKDIR /src
 
 EXPOSE 3000
 
-RUN mkdir -p /src
-WORKDIR /src
+COPY Gemfile /src/
+COPY Gemfile.lock /src/
+RUN bundle install
 
 COPY main.rb  /src/
 

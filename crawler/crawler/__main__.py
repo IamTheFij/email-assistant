@@ -7,10 +7,12 @@ from imaplib import IMAP4
 import email
 import json
 import os
+import sys
 
 from dateutil import parser
 from dateutil.tz import tzutc
 from imbox import Imbox
+from imbox.parser import parse_email
 import requests
 
 
@@ -18,27 +20,27 @@ VALID_CONTENT_TYPES = [ 'text/plain', 'text/html' ]
 
 
 class MailCrawler(object):
-    parser_hosts = None
-    indexer_host = os.environ['INDEXER']
+    parser_urls = None
+    indexer_url = os.environ['INDEXER_URL']
 
     def __init__(self):
-        self.imap_url = os.environ['IMAP_URL']
-        self.imap_user = os.environ['IMAP_USER']
-        self.imap_pass = os.environ['IMAP_PASS']
+        self.imap_url = os.environ.get('IMAP_URL')
+        self.imap_user = os.environ.get('IMAP_USER')
+        self.imap_pass = os.environ.get('IMAP_PASS')
 
     def get_parsers(self):
         """Retrieves a list of parser hosts"""
-        if self.parser_hosts is None:
-            self.parser_hosts = []
+        if self.parser_urls is None:
+            self.parser_urls = []
             parser_format = 'PARSER_{}'
             parser_index = 1
-            parser_host = os.environ.get(parser_format.format(parser_index))
-            while parser_host is not None:
-                self.parser_hosts.append(parser_host)
+            parser_url = os.environ.get(parser_format.format(parser_index))
+            while parser_url is not None:
+                self.parser_urls.append(parser_url)
                 parser_index += 1
-                parser_host = os.environ.get(parser_format.format(parser_index))
+                parser_url = os.environ.get(parser_format.format(parser_index))
 
-        return self.parser_hosts
+        return self.parser_urls
 
     def parse_message(self, message):
         """Parses tokens from an email message"""
@@ -48,10 +50,10 @@ class MailCrawler(object):
             return []
 
         results = []
-        for parser_host in self.get_parsers():
+        for parser_url in self.get_parsers():
             # print('Parsing email text... ', text)
             response = requests.post(
-                parser_host+'/parse',
+                parser_url+'/parse',
                 json={
                     'subject': message.subject,
                     'message': text,
@@ -82,7 +84,7 @@ class MailCrawler(object):
     def index_token(self, message):
         """Sends a token from the parser to the indexer"""
         response = requests.post(
-            self.indexer_host+'/token',
+            self.indexer_url+'/token',
             json=message,
         )
         response.raise_for_status()
@@ -125,7 +127,7 @@ class MailCrawler(object):
         return since_date, last_message
 
 
-    def run(self):
+    def run_against_imap(self):
         print('Starting crawler')
         # TODO: Put server into some kind of context manager and property
         with self.get_server() as server:
@@ -144,11 +146,23 @@ class MailCrawler(object):
                 # Sleep for 10 min
                 sleep(10 * 60)
 
+    def run_against_stdin(self):
+        print('Running crawler on stdin')
+        message = parse_email(sys.stdin.read())
+        self.process_message(message)
+        print('Done')
+
+    def run(self):
+        if self.imap_url and self.imap_user and self.imap_pass:
+            while True:
+                try:
+                    self.run_against_imap()
+                except IMAP4.abort:
+                    print('Imap abort. We will try to reconnect')
+                    pass
+        else:
+            self.run_against_stdin()
+
 
 if __name__ == '__main__':
-    while True:
-        try:
-            MailCrawler().run()
-        except IMAP4.abort:
-            print('Imap abort. We will try to reconnect')
-            pass
+    MailCrawler().run()

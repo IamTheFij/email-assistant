@@ -1,8 +1,8 @@
 require 'sinatra'
 require 'tracking_number'
 
-set :bind, '0.0.0.0'
-set :port, 3000
+set :bind, ENV['HOST'].present? ? ENV['HOST'] : "0.0.0.0"
+set :port, ENV['PORT'].present? ? ENV['PORT'] : 3000
 
 
 def get_tracking_url(tracker)

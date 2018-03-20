@@ -9,4 +9,4 @@ ENV FLASK_DEBUG=1
 EXPOSE 5000
 
 # TODO: Track debug in env and use threads
-CMD python -m indexer.main
+CMD python -m indexer

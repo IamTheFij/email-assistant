@@ -1,8 +1,8 @@
 require 'sinatra'
 require 'trackerific'
 
-set :bind, "0.0.0.0"
-set :port, 3000
+set :bind, ENV['HOST'].present? ? ENV['HOST'] : "0.0.0.0"
+set :port, ENV['PORT'].present? ? ENV['PORT'] : 3000
 
 Trackerific.configure do |config|
     if [

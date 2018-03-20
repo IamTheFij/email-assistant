@@ -13,8 +13,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'SQLALCHEMY_DATABASE_URI',
     'sqlite:///../tokens.db'
 )
-app.config['SQLALCHEMY_ECHO'] = True
-app.config['DEBUG'] = True
+app.config['SQLALCHEMY_ECHO'] = bool(os.environ.get('SQLALCHEMY_ECHO', True))
+app.config['DEBUG'] = bool(os.environ.get('DEBUG', True))
+app.config['HOST'] = os.environ.get('HOST', '0.0.0.0')
+app.config['PORT'] = int(os.environ.get('PORT', 5000))
 
 db = SQLAlchemy(app)
 
@@ -127,4 +129,4 @@ def get_token(token_id):
 
 if __name__ == '__main__':
     db.create_all()
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host=app.config['HOST'], port=app.config['PORT'])

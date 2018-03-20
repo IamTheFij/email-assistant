@@ -1,3 +1,3 @@
 FROM python:3.6-onbuild
 
-CMD python -m crawler.main
+CMD python -m crawler

@@ -1,5 +1,4 @@
 #!/bin/sh
-
 export HOST=127.0.0.1
 export DEBUG=1
 export SQLALCHEMY_ECHO=1
@@ -8,6 +7,9 @@ PARSER_PACKAGE_TRACKING_PORT=4001
 MAIN_INDEXER_PORT=4100
 MAIN_VIEWER_PORT=4200
 VIEWER_PACKAGE_TRACKING_PORT=4201
+
+cd $(dirname "$0")
+source .env/bin/activate
 
 # Parsers
 cd parsers/package-tracking && PORT=${PARSER_PACKAGE_TRACKING_PORT} bundle exec ruby main.rb &

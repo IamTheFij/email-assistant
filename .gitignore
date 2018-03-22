@@ -127,3 +127,6 @@ _testmain.go
 
 .DS_Store
 .env
+
+# Ignore emails testing folder
+test/

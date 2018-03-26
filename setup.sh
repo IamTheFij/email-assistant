@@ -3,7 +3,7 @@
 SCRIPT_DIR=$(realpath $(dirname "$0"))
 cd ${SCRIPT_DIR}
 
-virtualenv .env && source .env/bin/activate
+virtualenv -p python3 .env && source .env/bin/activate
 find . -name requirements.txt -exec pip install -r {} \;
 
 for i in $(find . -name "*.rb" -print | grep -v "vendor/bundle"); do

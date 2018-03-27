@@ -44,8 +44,8 @@ class MailCrawler(object):
 
     def parse_message(self, message):
         """Parses tokens from an email message"""
-        text = self.get_email_text(message)
-        if not text:
+        body = self.get_email_body(message)
+        if not body:
             print('No email text returned')
             return []
 
@@ -56,7 +56,7 @@ class MailCrawler(object):
                 parser_url+'/parse',
                 json={
                     'subject': message.subject,
-                    'message': text,
+                    'message': body,
                 },
             )
             response.raise_for_status()
@@ -73,13 +73,21 @@ class MailCrawler(object):
             ssl=True,
         )
 
-    def get_email_text(self, message):
+    def get_email_body(self, message):
         """Retrieves the text body of an email message"""
-        body = message.body.get('plain') or message.body.get('html')
-        if not body:
+        has_body = message.body.get('html') or message.body.get('plain')
+        if not has_body:
             return None
         # Concat all known body content together since it doesn't really matter
-        return ''.join([text for text in body if isinstance(text, str)])
+        print([text for text in message.body.get('plain') if isinstance(text, str)])
+        return {
+            'html': ''.join([text
+                             for text in message.body.get('html')
+                             if isinstance(text, str)]),
+            'plain': ''.join([text
+                              for text in message.body.get('plain')
+                              if isinstance(text, str)])
+        }
 
     def index_token(self, message):
         """Sends a token from the parser to the indexer"""

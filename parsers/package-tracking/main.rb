@@ -29,15 +29,21 @@ end
 # Returns [{"token": "extracted token", "type": "token type", "metadata": {}]
 post '/parse' do
     body = JSON.parse(request.body.read)
-    trackers = TrackingNumber.search(body['message'])
+    message = body['message']['plain'] ? body['message']['plain'] : body['message']['html']
+    trackers = TrackingNumber.search(message)
     results = []
     for tracker in trackers do
         results.push({
             :token => tracker.tracking_number,
-            :type => 'SHIPPING',
+            :type => 'ParcelDelivery',
             :metadata => {
-                :carrier_name => tracker.courier_name,
-                :tracking_url => get_tracking_url(tracker),
+                :provider => {
+                    :@type => 'provider',
+                    :@context => 'http://schema.org',
+                    :name => tracker.courier_name,
+                },
+                :trackingUrl => get_tracking_url(tracker),
+                :trackingNumber => tracker.tracking_number,
             }
         })
     end

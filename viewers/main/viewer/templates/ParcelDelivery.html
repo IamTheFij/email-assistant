@@ -27,19 +27,19 @@
                 <tr>
                     <th scope="row">{{ row['id'] }}</th>
                     <td>
-                        {% if row['metadata'].get('tracking_url') %}
-                        <a href="{{ row['metadata'].get('tracking_url') }}">
+                        {% if row.metadata.trackingUrl %}
+                        <a href="{{ row.metadata.trackingUrl }}">
                             {{ row['token'] }}
                         </a>
                         {% else %}
                         {{ row['token'] }}
                         {% endif %}
                     </td>
-                    <td>{{ row['metadata']['carrier_name'] }}</td>
+                    <td>{{ row.metadata.provider.name or '' }}</td>
                     <td>{{ row['metadata'].get('events', [{}])[0].get('description', '') }}</td>
                     <td>{{ row['metadata'].get('events', [{}])[0].get('location', '') }}</td>
-                    <td>{{ row['subject'] }}</td>
-                    <td>{{ row['disabled'] }}</td>
+                    <td>{{ row.subject }}</td>
+                    <td>{{ row.disabled }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

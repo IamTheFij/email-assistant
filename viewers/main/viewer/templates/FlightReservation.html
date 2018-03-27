@@ -24,33 +24,33 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in flights %}
+                {% for row in tokens %}
                 <tr>
                     <th scope="row">{{ row.id }}</th>
-                    <td>{{ row.metadata.properties.underName.properties.name or '' }}</td>
+                    <td>{{ row.metadata.underName.name or '' }}</td>
                     <td>
-                        {{ row.metadata.properties.reservationNumber or ''}}
+                        {{ row.metadata.reservationNumber or ''}}
                     </td>
                     <td>
-                        {{ row.metadata.properties.reservationFor.properties.airline.properties.iataCode or ''}}
-                        {{ row.metadata.properties.reservationFor.properties.flightNumber or ''}}
+                        {{ row.metadata.reservationFor.airline.iataCode or ''}}
+                        {{ row.metadata.reservationFor.flightNumber or ''}}
                     </td>
                     <td>
-                        {{ row.metadata.properties.reservationFor.properties.departureAirport.properties.iataCode or ''}}
-                        {{ row.metadata.properties.reservationFor.properties.departureTerminal or ''}}
-                        {{ row.metadata.properties.reservationFor.properties.departureGate or ''}}
-                        @ {{ row.metadata.properties.reservationFor.properties.departureTime | datetime }}
+                        {{ row.metadata.reservationFor.departureAirport.iataCode or ''}}
+                        {{ row.metadata.reservationFor.departureTerminal or ''}}
+                        {{ row.metadata.reservationFor.departureGate or ''}}
+                        @ {{ row.metadata.reservationFor.departureTime | datetime }}
                     </td>
                     <td>
-                        {{ row.metadata.properties.reservationFor.properties.arrivalAirport.properties.iataCode or '' }}
-                        @ {{ row.metadata.properties.reservationFor.properties.arrivalTime | datetime }}
+                        {{ row.metadata.reservationFor.arrivalAirport.iataCode or '' }}
+                        @ {{ row.metadata.reservationFor.arrivalTime | datetime }}
                     </td>
                     <td>
-                        {{ row.metadata.properties.airplaneSeat or '' }}
+                        {{ row.metadata.airplaneSeat or '' }}
                     </td>
                     <td>
-                        {% if row.metadata.properties.ticketToken %}
-                            {% set codeSplit = row.metadata.properties.ticketToken.split(':') %}
+                        {% if row.metadata.ticketToken %}
+                            {% set codeSplit = row.metadata.ticketToken.split(':') %}
                             {% if codeSplit | length > 1 %}
                                 <img src="http://bwipjs-api.metafloor.com/?bcid={{ codeSplit[0] | lower }}&text={{ codeSplit[1] }}" />
                             {% endif %}

@@ -32,11 +32,11 @@ def check():
     return flask.render_template('home.html')
 
 
-@app.route('/shipping')
+@app.route('/ParcelDelivery')
 def get_shipping():
     resp = requests.get(
         indexer_url+'/token',
-        params={'filter_type': 'SHIPPING'},
+        params={'filter_type': 'ParcelDelivery'},
     )
     resp.raise_for_status()
     tokens = resp.json().get('tokens')
@@ -52,21 +52,25 @@ def get_shipping():
         except Exception as e:
             print('Error', e, file=sys.stderr)
             pass
-    return flask.render_template('shipping.html', trackers=tokens)
+    tokens = [
+        addict.Dict(x)
+        for x in tokens
+    ]
+    return flask.render_template('ParcelDelivery.html', trackers=tokens)
 
 
-@app.route('/flights')
-def get_flights():
+@app.route('/<data_type>')
+def get_type(data_type):
     resp = requests.get(
         indexer_url+'/token',
-        params={'filter_type': 'http://schema.org/FlightReservation'},
+        params={'filter_type': data_type},
     )
     resp.raise_for_status()
     tokens = [
         addict.Dict(x)
         for x in resp.json().get('tokens')
     ]
-    return flask.render_template('flights.html', flights=tokens)
+    return flask.render_template(data_type + '.html', tokens=tokens)
 
 
 if __name__ == '__main__':

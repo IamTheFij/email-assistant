@@ -1,6 +1,4 @@
-# Install:
-#   * Create a virtualenv and `pip install -r requirements.txt` for all such files in the repo.
-#   * For each Ruby submodule, use `bundle install --path vendor/bundle`.
+#!/bin/sh
 
 export HOST=127.0.0.1
 export DEBUG=1

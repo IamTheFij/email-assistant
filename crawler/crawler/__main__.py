@@ -26,15 +26,7 @@ class MailCrawler(object):
     def get_parsers(self):
         """Retrieves a list of parser hosts"""
         if self.parser_urls is None:
-            self.parser_urls = []
-            parser_format = 'PARSER_{}'
-            parser_index = 1
-            parser_url = os.environ.get(parser_format.format(parser_index))
-            while parser_url is not None:
-                self.parser_urls.append(parser_url)
-                parser_index += 1
-                parser_url = os.environ.get(parser_format.format(parser_index))
-
+            self.parser_urls = os.environ.get('PARSERS', '').split(',')
         return self.parser_urls
 
     def parse_message(self, message):

@@ -82,7 +82,6 @@ build/
 ## Documentation cache and generated files:
 /.yardoc/
 /_yardoc/
-/doc/
 /rdoc/
 
 ## Environment normalisation:
@@ -127,6 +126,7 @@ _testmain.go
 
 .DS_Store
 .env
+*.swp
 
 # Ignore emails testing folder
 test/

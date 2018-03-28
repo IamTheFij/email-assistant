@@ -1,22 +1,17 @@
-from datetime import date
-from datetime import datetime
-from datetime import timedelta
-from getpass import getpass
-from time import sleep
-from imaplib import IMAP4
 import email
 import json
 import os
 import sys
+from datetime import date, datetime, timedelta
+from getpass import getpass
+from imaplib import IMAP4
+from time import sleep
 
+import requests
 from dateutil import parser
 from dateutil.tz import tzutc
 from imbox import Imbox
 from imbox.parser import parse_email
-import requests
-
-
-VALID_CONTENT_TYPES = [ 'text/plain', 'text/html' ]
 
 
 class MailCrawler(object):

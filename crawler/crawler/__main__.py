@@ -1,5 +1,6 @@
 import email
 import json
+import logging
 import os
 import sys
 from datetime import date, datetime, timedelta
@@ -13,6 +14,8 @@ from dateutil.tz import tzutc
 from imbox import Imbox
 from imbox.parser import parse_email
 
+logging.basicConfig()
+
 
 class MailCrawler(object):
     parser_urls = None
@@ -22,6 +25,7 @@ class MailCrawler(object):
         self.imap_url = os.environ.get('IMAP_URL')
         self.imap_user = os.environ.get('IMAP_USER')
         self.imap_pass = os.environ.get('IMAP_PASS')
+        self.imap_folder = os.environ.get('IMAP_FOLDER', False)
 
     def get_parsers(self):
         """Retrieves a list of parser hosts"""
@@ -42,6 +46,7 @@ class MailCrawler(object):
             response = requests.post(
                 parser_url+'/parse',
                 json={
+                    'from': message.sent_from,
                     'subject': message.subject,
                     'message': body,
                 },
@@ -61,12 +66,11 @@ class MailCrawler(object):
         )
 
     def get_email_body(self, message):
-        """Retrieves the text body of an email message"""
+        """Get the body from the message"""
         has_body = message.body.get('html') or message.body.get('plain')
         if not has_body:
             return None
         # Concat all known body content together since it doesn't really matter
-        print([text for text in message.body.get('plain') if isinstance(text, str)])
         return {
             'html': ''.join([text
                              for text in message.body.get('html')
@@ -96,7 +100,8 @@ class MailCrawler(object):
 
 
     def process_messages(self, server, since_date, last_message=0):
-        for uid, message in server.messages(date__gt=since_date):
+        for uid, message in server.messages(date__gt=since_date,
+                                            folder=self.imap_folder):
             uid = int(uid)
             if uid <= last_message:
                 print('DDB Already seen message with uid {}. Skipping'.format(uid))
@@ -105,17 +110,26 @@ class MailCrawler(object):
             print(
                 'Processing message uid {} message_id {} '
                 'with subject "{}"'.format(
-                    uid, message.message_id, message.subject
+                    uid, getattr(message, 'message_id', '?'), message.subject
                 )
             )
-            self.process_message(message)
+            try:
+                self.process_message(message)
+            except Exception as e:
+                logging.error(
+                    'An error occured while processing message %s: %s.',
+                    uid, str(e)
+                )
 
             # Update since_date
             message_date = parser.parse(message.date)
             print('DDB Processed message. Message date: {} Old date: {}'.format(
                 message_date, since_date
             ))
-            since_date = max(since_date, message_date)
+            if since_date:
+                since_date = max(since_date, message_date)
+            else:
+                since_date = message_date
             print('DDB Since date is now ', since_date)
             last_message = max(uid, last_message)
 
@@ -127,7 +141,7 @@ class MailCrawler(object):
         # TODO: Put server into some kind of context manager and property
         with self.get_server() as server:
             # TODO: parameterize startup date, maybe relative
-            since_date = datetime.now(tzutc()) - timedelta(days=15)
+            since_date = False  # Start back from origin
             last_message = 0
             while True:
                 print('Lets process')

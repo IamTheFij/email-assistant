@@ -13,28 +13,12 @@
                         <v-list-tile-title>Home</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile :to="{ name: 'Items', params: { type: 'ParcelDelivery' }}">
+                <v-list-tile v-for="(value, key) in menuItems" :to="{ name: 'Items', params: { type: key }}" :key="key">
                     <v-list-tile-action>
-                        <v-icon>local_post_office</v-icon>
+                      <v-icon>{{ value.icon }}</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
-                        <v-list-tile-title>Parcel deliveries</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-list-tile :to="{ name: 'Items', params: { type: 'BusReservation' }}">
-                    <v-list-tile-action>
-                        <v-icon>directions_bus</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>Bus reservations</v-list-tile-title>
-                    </v-list-tile-content>
-                </v-list-tile>
-                <v-list-tile :to="{ name: 'Items', params: { type: 'FlightReservation' }}">
-                    <v-list-tile-action>
-                        <v-icon>flight</v-icon>
-                    </v-list-tile-action>
-                    <v-list-tile-content>
-                        <v-list-tile-title>Flight reservations</v-list-tile-title>
+                        <v-list-tile-title>{{ key }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </v-list>
@@ -51,10 +35,13 @@
 </template>
 
 <script>
+import * as schemas from '@/components/schemas';
+
 export default {
     data() {
         return {
             title: 'Email-assistant',
+            menuItems: schemas.default,
         };
     },
     name: 'App',

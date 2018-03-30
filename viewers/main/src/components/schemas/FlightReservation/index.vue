@@ -10,7 +10,7 @@
             <td>{{ props.item.from }}</td>
             <td>{{ props.item.to }}</td>
             <td>{{ props.item.seat }}</td>
-            <td><BoardingPass :value="props.item.boardingPass"></BoardingPass></td>
+            <td><Barcode :value="props.item.boardingPass"></Barcode></td>
         </template>
     </v-data-table>
 </template>
@@ -18,11 +18,11 @@
 <script>
 import moment from 'moment';
 
-import BoardingPass from '@/components/BoardingPass';
+import Barcode from '@/components/Barcode';
 
 export default {
     components: {
-        BoardingPass,
+        Barcode,
     },
     computed: {
         tableItems() {

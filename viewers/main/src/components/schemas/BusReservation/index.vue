@@ -9,7 +9,7 @@
             <td>{{ props.item.busNumber }}</td>
             <td>{{ props.item.from }}</td>
             <td>{{ props.item.to }}</td>
-            <td><BoardingPass :value="props.item.boardingPass"></BoardingPass></td>
+            <td><Barcode :value="props.item.boardingPass"></Barcode></td>
             <td>{{ props.item.price }}</td>
         </template>
     </v-data-table>
@@ -19,11 +19,11 @@
 import currencyFormatter from 'currency-formatter';
 import moment from 'moment';
 
-import BoardingPass from '@/components/BoardingPass';
+import Barcode from '@/components/Barcode';
 
 export default {
     components: {
-        BoardingPass,
+        Barcode,
     },
     computed: {
         tableItems() {

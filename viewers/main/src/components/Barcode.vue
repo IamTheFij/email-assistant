@@ -30,7 +30,6 @@ export default {
     },
     methods: {
         showBarcode() {
-            console.log(this.parsedBarcode);
             if (this.parsedBarcode.url) {
                 // Just display an image
             } else if (this.parsedBarcode.bcid) {

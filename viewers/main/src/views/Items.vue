@@ -3,23 +3,15 @@
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
     </div>
     <div v-else>
-        <BusReservation :items="items" v-if="$route.params.type == 'BusReservation'"></BusReservation>
-        <FlightReservation :items="items" v-else-if="$route.params.type == 'FlightReservation'"></FlightReservation>
-        <ParcelDelivery :items="items" v-else-if="$route.params.type == 'ParcelDelivery'"></ParcelDelivery>
+        <component :items="items" :is="schemas[$route.params.type].component"></component>
     </div>
 </template>
 
 <script>
-import BusReservation from '@/components/BusReservation';
-import FlightReservation from '@/components/FlightReservation';
-import ParcelDelivery from '@/components/ParcelDelivery';
+import * as schemas from '@/components/schemas';
 
 export default {
-    components: {
-        BusReservation,
-        FlightReservation,
-        ParcelDelivery,
-    },
+    components: Object.assign({}, schemas.default),
     created() {
         this.fetchItems();
     },
@@ -30,6 +22,7 @@ export default {
         return {
             isLoading: false,
             items: [],
+            schemas: schemas.default,
         };
     },
     methods: {

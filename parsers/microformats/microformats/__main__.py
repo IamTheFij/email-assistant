@@ -1,8 +1,11 @@
 import json
+import logging
 import os
 
 import bottle
 import extruct
+
+logging.basicConfig(level=logging.INFO)
 
 
 def microformats_to_jsonld(mf):
@@ -33,9 +36,6 @@ TYPES_TO_TOKEN = {
     "FlightReservation": (
         lambda x: x.get('reservationNumber', None)
     ),
-    "TrainReservation": (
-        lambda x: x.get('reservationNumber', None)
-    ),
 }
 
 
@@ -62,6 +62,11 @@ def parse_microformats(message):
     for item in parsed_microdata:
         type, token = get_type(item)
         if not type or not token:
+            logging.warning(
+                'Ignoring microdata of type %s, unsupported type or '
+                'missing token.',
+                type
+            )
             continue
         results.append({
             'token': token,
@@ -74,6 +79,7 @@ def parse_microformats(message):
 @bottle.post('/parse')
 def parse():
     body = bottle.request.json
+    logging.info('Parsing email with subject "%s".', body['subject'])
     return json.dumps(parse_microformats(
         body['message']['html'] or body['message']['plain']
     ))

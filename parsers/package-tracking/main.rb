@@ -33,6 +33,9 @@ post '/parse' do
     trackers = TrackingNumber.search(message)
     results = []
     for tracker in trackers do
+        if not body['from'].include? tracker.courier_name
+            next
+        end
         results.push({
             :token => tracker.tracking_number,
             :type => 'ParcelDelivery',

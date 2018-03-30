@@ -12,3 +12,10 @@ for i in $(find . -name "*.rb" -print | grep -v "vendor/bundle"); do
     bundle install --path vendor/bundle
     cd ${ROOT_DIR}
 done
+
+for i in $(find . -name "yarn.lock" -print); do
+    echo "Installing JS dependencies for $i"
+    cd "$(dirname "$i")"
+    yarn install
+    cd ${ROOT_DIR}
+done

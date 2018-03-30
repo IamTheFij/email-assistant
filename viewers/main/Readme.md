@@ -1,48 +1,21 @@
-# Indexer
-Simple service to act as data layer for Email Assitant
+# viewer
 
-# Healthcheck
-Path: `/`
-Returns: `OK`
+> A Vue.js project
 
-# Tokens
-Path: `/token`
+## Build Setup
 
-## POST
-Accepts JSON representation of a EmailToken
+``` bash
+# install dependencies
+npm install
 
-Accepts:
+# serve with hot reload at localhost:8080
+npm run dev
 
-|Field|Type|Example|
-|---|---|---|
-|`"subject"`|String|`"Your shipping info"`|
-|`"token"`|String|`"123456"`|
-|`"type"`|String|`"SHIPPING"`|
-|`"metadata"`|Object (optional)|`{"carrier": "UPS"}`|
-|`"disabled"`|Boolean (optional)|`false`|
+# build for production with minification
+npm run build
 
-Returns:
+# build for production and view the bundle analyzer report
+npm run build --report
+```
 
-|Field|Type|Example|
-|---|---|---|
-|`"success"`|Boolean|`true`|
-|`"token"`|Token Object|`{"id": 1, ... }`|
-
-## GET
-Path: `/token`
-Returns all Token Objects
-
-Parameters:
-
-|Parameter|Description|Example|
-|---|---|---|
-|`"filter_type"`|String token type to filter by|`SHIPPING`|
-
-Returns:
-
-|Field|Type|Example|
-|---|---|---|
-|`"tokens"`|List of Token Objects|`[{"id": 1, ... }, ...]`|
-
-Path: `/token/<int:token_id>`
-Returns Token Object with that ID
+For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

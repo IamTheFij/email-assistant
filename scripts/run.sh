@@ -20,7 +20,7 @@ cd parsers/microformats && PORT=${PARSER_MICROFORMATS_PORT} python -m microforma
 cd indexer && PORT=${MAIN_INDEXER_PORT} python -m indexer &
 
 # Viewers
-cd viewers/main && PORT=${MAIN_VIEWER_PORT} INDEXER_URL=http://127.0.0.1:${MAIN_INDEXER_PORT} VIEWER_PACKAGE_TRACKING_URL=http://127.0.0.1:${VIEWER_PACKAGE_TRACKING_PORT} VIEWER_MICROFORMATS_URL=http://127.0.0.1:${VIEWER_MICROFORMATS_PORT} python -m viewer &
+cd viewers/main && PORT=${MAIN_VIEWER_PORT} INDEXER_URL=http://127.0.0.1:${MAIN_INDEXER_PORT} VIEWER_PACKAGE_TRACKING_URL=http://127.0.0.1:${VIEWER_PACKAGE_TRACKING_PORT} yarn run dev &
 cd viewers/package-tracking && PORT=${VIEWER_PACKAGE_TRACKING_PORT} bundle exec ruby main.rb &
 
 trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT

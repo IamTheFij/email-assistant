@@ -125,14 +125,18 @@ class MailCrawler(object):
                 )
 
             # Update since_date
-            message_date = parser.parse(message.date)
-            print('DDB Processed message. Message date: {} Old date: {}'.format(
-                message_date, since_date
-            ))
-            if since_date:
-                since_date = max(since_date, message_date)
-            else:
-                since_date = message_date
+            try:
+                message_date = parser.parse(message.date, fuzzy=True)
+                print(
+                    'DDB Processed message. Message date: %s Old date: %s' %
+                    (message_date, since_date)
+                )
+                if since_date:
+                    since_date = max(since_date, message_date)
+                else:
+                    since_date = message_date
+            except ValueError:
+                logging.warning('Invalid date encountered: %s.', message.date)
             print('DDB Since date is now ', since_date)
             last_message = max(uid, last_message)
 

@@ -6,6 +6,8 @@ import bottle
 import extruct
 
 logging.basicConfig(level=logging.INFO)
+# Increase max file size to 10M
+bottle.BaseRequest.MEMFILE_MAX = 10 * 1024 * 1024
 
 
 def microformats_to_jsonld(mf):
@@ -41,6 +43,8 @@ TYPES_TO_TOKEN = {
 
 def get_type(item):
     type = item.get('@type', None)
+    if type is None:
+        print(item)
     token = None
 
     if type in TYPES_TO_TOKEN:
@@ -50,6 +54,9 @@ def get_type(item):
 
 
 def parse_microformats(message):
+    if not message:
+        return []
+
     parsed_microdata = extruct.extract(message)
     parsed_microdata = (
         [
@@ -64,8 +71,8 @@ def parse_microformats(message):
         if not type or not token:
             logging.warning(
                 'Ignoring microdata of type %s, unsupported type or '
-                'missing token.',
-                type
+                'missing token: %s.',
+                type, item
             )
             continue
         results.append({

@@ -117,8 +117,11 @@ class MailCrawler(object):
                 self.process_message(message)
             except Exception as e:
                 logging.error(
-                    'An error occured while processing message %s: %s.',
-                    uid, str(e)
+                    'An error occured while processing message %s%s: %s.',
+                    uid,
+                    ((' (%s)' % message.subject)
+                     if hasattr(message, 'subject') else ''),
+                    str(e)
                 )
 
             # Update since_date

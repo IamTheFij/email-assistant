@@ -5,6 +5,7 @@ import sys
 
 from flask import jsonify
 from flask import request
+from flask.ext.api import status
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 import flask
@@ -165,11 +166,14 @@ def list_all_tokens():
     return EmailToken.jsonify_all(token_type=token_type)
 
 
-@app.route('/token/<int:token_id>', methods=['GET'])
+@app.route('/token/<string:token_id>', methods=['GET'])
 def get_token(token_id):
     """Gets a token by its primary key id"""
-    token = EmailToken.query.get(token_id)
-    return jsonify(token.as_dict())
+    token = EmailToken.query.filter_by(token=token_id).first()
+    if token:
+        return jsonify(token.as_dict())
+    else:
+        return jsonify({}), status.HTTP_404_NOT_FOUND
 
 
 if __name__ == '__main__':

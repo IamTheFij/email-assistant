@@ -1,3 +1,5 @@
+import DigitalDocument from './DigitalDocument';
+import Invoice from './Invoice';
 import BusReservation from './BusReservation';
 import FlightReservation from './FlightReservation';
 import ParcelDelivery from './ParcelDelivery';
@@ -7,9 +9,17 @@ export default {
         component: BusReservation,
         icon: 'directions_bus',
     },
+    DigitalDocument: {
+        component: DigitalDocument,
+        icon: 'attach_file',
+    },
     FlightReservation: {
         component: FlightReservation,
         icon: 'flight',
+    },
+    Invoice: {
+        component: Invoice,
+        icon: 'receipt',
     },
     ParcelDelivery: {
         component: ParcelDelivery,

@@ -17,6 +17,7 @@
     "fork-awesome": "^1.0.11",
     "isomorphic-fetch": "^2.2.1",
     "material-design-icons": "^3.0.1",
+    "mime-types": "^2.1.18",
     "moment": "^2.21.0",
     "roboto-fontface": "^0.9.0",
     "vue": "^2.5.2",

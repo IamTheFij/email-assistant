@@ -1,15 +1,15 @@
-Email assistant
-===============
+Médonay
+=======
 
-This is a set of microservices to extract metadata from your emails and taking
-actions on it. Using a microservice approach has the great advantage of being
-able to write any parser in the best fitted language, as is perfectly well
-described on [this blog
+This is a set of microservices to extract metadata from various sources (your
+emails, your online accounts) and taking actions on it. Using a microservice
+approach has the great advantage of being able to write any parser in the best
+fitted language, as is perfectly well described on [this blog
 post](https://blog.iamthefij.com/2018/03/08/building-a-self-hosted-email-assistant/).
 
 The core idea is to have a set of interchangeable microservices:
-* A *crawler* which is crawling through your emails and handing them over to
-  parsers.
+* A set of *crawlers* which are crawling through various places (emails,
+  accounts, …) to fetch your data and handing it over to parsers.
 * A set of *parsers* to extract metadata from your emails.
 * An *indexer* which is basically exposing an API endpoint to store metadata
   extracted from your emails.
@@ -20,13 +20,23 @@ instance, the current implementation of the *indexer* uses an SQLite backend,
 but you might want to use MongoDB or CouchDB, which is just a matter of
 changing the *indexer* component.
 
-Supported parsers so far are:
+Supported crawlers so far are:
+- [x] An email crawler to fetch data from your emails. It can either fetch
+    automatically over IMAP or read emails you pipe to it.
+- [x] A [Web Outside of Browsers](http://weboob.org/) based crawler to fetch
+    data from your online accounts (by scraping them). This one is a bit
+    particular as Web Outside of Browsers already returns structured data, so
+    it does not call any parser under the hood.
+
+Supported extractors (parsers) so far are:
 
 - [x] Extract package tracking info from emails.
 - [x] Extract some of [structured metadata](https://developers.google.com/gmail/markup/getting-started):
     - [x] Bus tickets
     - [x] Flight tickets
     - [ ] More to come!
+- [x] All the [billing modules](http://weboob.org/applications/boobill) from
+    Web Outside of Browsers.
 
 Each microservice accepts environment variables to customize its behavior.
 These are `HOST` (for the host to bind to), `PORT` (for the port to bind to)
@@ -46,8 +56,8 @@ available parsers, are available in [the `doc` folder](doc/).
 Here are some basic steps to get started:
 
 ```bash
-git clone https://github.com/Phyks/email-assistant
-cd email-assistant
+git clone https://github.com/Phyks/medonay
+cd medonay
 # Create a virtual env and install all required dependencies. Same for Ruby
 # scripts.
 ./scripts/setup.sh
@@ -56,13 +66,12 @@ cd email-assistant
 ./scripts/run.sh
 ```
 
-Then, you can easily start parsing emails by `cat`ing them to the `crawler`:
+Then, for instance, you can easily start parsing emails by `cat`ing them to
+the `crawler`:
 
 ```bash
-cd crawler && cat /path/to/email.eml | INDEXER_URL=http://127.0.0.1:4100 PARSER_1=http://127.0.0.1:4001 PARSER_2=http://127.0.0.1:4002 python -m crawler
+cd crawlers/imap-crawler && cat /path/to/email.eml | INDEXER_URL=http://127.0.0.1:4100 PARSER_1=http://127.0.0.1:4001 PARSER_2=http://127.0.0.1:4002 python -m imapCrawler
 ```
-
-or you can use the `crawler` in a more regular way :)
 
 
 **Note about Docker files**: The initial setup was using Docker files and

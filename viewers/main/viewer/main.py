@@ -11,8 +11,12 @@ app.config['DEBUG'] = True
 indexer_url = os.environ.get('INDEXER_URL', 'http://indexer')
 
 
+@app.route('/healthcheck')
+def healthcheck():
+    return 'OK'
+
 @app.route('/')
-def check():
+def home():
     return flask.render_template('home.html')
 
 

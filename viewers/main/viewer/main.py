@@ -20,7 +20,10 @@ def check():
 def get_tokens():
     resp = requests.get(
         indexer_url+'/token',
-        params={'filter_type': 'SHIPPING'},
+        params={
+            'filter_type': 'SHIPPING',
+            'desc': True,
+        },
     )
     resp.raise_for_status()
     tokens = resp.json().get('tokens')

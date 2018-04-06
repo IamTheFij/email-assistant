@@ -59,13 +59,14 @@ class EmailToken(db.Model):
         )
 
     @classmethod
-    def jsonify_all(cls, token_type=None):
+    def jsonify_all(cls, token_type=None, desc=False):
+        query = cls.query
         if token_type:
             print('Filtering query by token type', file=sys.stderr)
-            results = cls.query.filter_by(token_type=token_type).all()
-        else:
-            results = cls.query.all()
-        return jsonify(tokens=[token.as_dict() for token in results])
+            query = query.filter_by(token_type=token_type)
+        if desc:
+            query = query.order_by(cls.id.desc())
+        return jsonify(tokens=[token.as_dict() for token in query.all()])
 
 
 @app.route('/')
@@ -114,8 +115,9 @@ def create_tokens():
 def list_all_tokens():
     """Lists all tokens with an optional type filter"""
     token_type = request.args.get('filter_type')
+    desc = request.args.get('desc', False)
     print('Asked to filter by ', token_type, file=sys.stderr)
-    return EmailToken.jsonify_all(token_type=token_type)
+    return EmailToken.jsonify_all(token_type=token_type, desc=desc)
 
 
 @app.route('/token/<int:token_id>', methods=['GET'])

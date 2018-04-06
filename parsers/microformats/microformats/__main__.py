@@ -38,6 +38,9 @@ TYPES_TO_TOKEN = {
     "FlightReservation": (
         lambda x: x.get('reservationNumber', None)
     ),
+    "TrainReservation": (
+        lambda x: x.get('reservationNumber', None)
+    ),
 }
 
 

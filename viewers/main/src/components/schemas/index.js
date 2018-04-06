@@ -2,6 +2,7 @@ import DigitalDocument from './DigitalDocument';
 import Invoice from './Invoice';
 import BusReservation from './BusReservation';
 import FlightReservation from './FlightReservation';
+import TrainReservation from './TrainReservation';
 import ParcelDelivery from './ParcelDelivery';
 
 export default {
@@ -16,6 +17,10 @@ export default {
     FlightReservation: {
         component: FlightReservation,
         icon: 'flight',
+    },
+    TrainReservation: {
+        component: TrainReservation,
+        icon: 'train',
     },
     Invoice: {
         component: Invoice,

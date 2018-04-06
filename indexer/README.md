@@ -1,14 +1,14 @@
 # Indexer
 Simple service to act as data layer for Email Assitant
 
-# Healthcheck
+## Healthcheck
 Path: `/`
 Returns: `OK`
 
-# Tokens
+## Tokens
 Path: `/token`
 
-## POST
+### POST
 Accepts JSON representation of a EmailToken
 
 Accepts:
@@ -17,7 +17,7 @@ Accepts:
 |---|---|---|
 |`"subject"`|String|`"Your shipping info"`|
 |`"token"`|String|`"123456"`|
-|`"type"`|String|`"SHIPPING"`|
+|`"type"`|String|`"ParcelDelivery"`|
 |`"metadata"`|Object (optional)|`{"carrier": "UPS"}`|
 |`"disabled"`|Boolean (optional)|`false`|
 
@@ -28,7 +28,7 @@ Returns:
 |`"success"`|Boolean|`true`|
 |`"token"`|Token Object|`{"id": 1, ... }`|
 
-## GET
+### GET
 Path: `/token`
 Returns all Token Objects
 

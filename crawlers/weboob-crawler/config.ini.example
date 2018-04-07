@@ -1,0 +1,16 @@
+[WEBOOB_CRAWLER]
+# Default settings for the crawler
+backends = first_module,other_module  # List of Weboob modules to use
+modules_path =  # No value, defaults to using weboob-modules Python module
+
+[first_module]
+# For each backend, you should provide the required configuration options to
+# build the backend in a dedicated section.
+login = LOGIN
+password = PASSWORD
+
+[other_module]
+# You can surround a value with quotes "`" to run a subcommand to get the
+# results, here `pass`.
+login = `pass show other_module/login`
+password = `pass show other_module/password`

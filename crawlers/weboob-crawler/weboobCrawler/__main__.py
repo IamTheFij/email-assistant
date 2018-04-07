@@ -8,29 +8,18 @@ You should pass it an ``INDEXER_URL`` environment variable to specify where the
 indexer resides. For instance,
 ``INDEXER_URL=http://localhost:4100 python -m weboobCrawler``.
 
-It expects a path to a YAML configuration file as first argument on the command
-line. An example YAML configuration file resides in ``config.yaml.example``.
-
-The configuration options are:
-    - ``backends``: mandatory, a list of Weboob backends to use.
-    - ``modules_path``: mandatory, the path to the local clone of the Weboob
-    modules to use. You can set it to ``!!null`` and it will use the modules
-    from the ``weboob-modules`` Python package.
-
-For each backend listed in the ``backends`` key, you should provide a config
-option with the backend name and the config options to use to build the backend
-(see Weboob doc). The ``config.yaml.example`` shows an example of this using
-the ``fremobile`` backend.
+It expects a path to a INI configuration file as first argument on the command
+line. An example INI configuration file resides in ``config.ini.example``.
 """
 from __future__ import absolute_import
 from __future__ import print_function
 
 import collections
+import configparser
 import json
 import logging
+import subprocess
 import sys
-
-import yaml
 
 from weboobCrawler.capabilities import SUPPORTED_CAPS
 from weboobCrawler.indexer import index_token
@@ -45,6 +34,26 @@ except ImportError:
     LOGGER.error("Weboob is not available on your system. Make sure you "
                  "installed it.")
     raise
+
+
+def eventually_call_command(value):
+    """
+    Eventually call a command to get the value, if the value starts and ends
+    with quotes "`".
+
+    :param value: The value to process.
+    :returns: The processed value.
+    """
+    if value.startswith(u'`') and value.endswith(u'`'):
+        cmd = value[1:-1]
+        try:
+            processed_value = subprocess.check_output(cmd, shell=True)
+        except subprocess.CalledProcessError as e:
+            raise ValueError(u'The call to the external tool failed: %s' % e)
+        processed_value = processed_value.decode('utf-8')
+        processed_value = processed_value.split('\n')[0].strip('\r\n\t')
+        return processed_value
+    return value
 
 
 class WeboobProxy(object):
@@ -67,17 +76,25 @@ class WeboobProxy(object):
 
         :param config: A config dict.
         """
-        backends = config["backends"]
+        backends = [
+            x.strip() for x in config['WEBOOB_CRAWLER']['backends'].split(',')
+        ]
 
         # Create base WebNip object
-        self.webnip = WebNip(modules_path=config["modules_path"])
+        self.webnip = WebNip(
+            modules_path=config['WEBOOB_CRAWLER']['modules_path']
+        )
 
         # Create backends
         self.backends = [
             self.webnip.load_backend(
                 module,
                 module,
-                params=config[module]
+                params={
+                    # Get params, calling the subcommands if necessary
+                    k: eventually_call_command(v)
+                    for k, v in config[module].items()
+                }
             )
             for module in backends
         ]
@@ -119,9 +136,11 @@ class WeboobProxy(object):
 
 
 def main(config_file):
-    # Load the YAML config
-    with open(config_file, 'r') as fh:
-        config = yaml.load(fh.read())
+    # Load the config
+    config = configparser.ConfigParser(allow_no_value=True)
+    if not config.read(config_file):
+        LOGGER.error('Unreadable config file %s.', config_file)
+        sys.exit(1)
 
     with WeboobProxy(config) as weboob_proxy:
         # Fetch data from Weboob
@@ -139,7 +158,7 @@ def main(config_file):
                         cls=WeboobEncoder
                     )
                     LOGGER.info('Indexing fetched data: %s.', json_item)
-                    response = index_token(json_item)
+                    index_token(json_item)
     LOGGER.info('All done!')
 
 

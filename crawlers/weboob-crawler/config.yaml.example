@@ -1,6 +1,0 @@
-backends:
-  - freemobile
-modules_path: !!null
-freemobile:
-  login: "LOGIN"
-  password: "PASSWORD"

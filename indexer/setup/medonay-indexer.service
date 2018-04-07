@@ -1,0 +1,20 @@
+[Unit]
+Description=Indexer for Medonay
+After=network.target
+
+[Service]
+WorkingDirectory=PATH_TO_MEDONAY/indexer
+Environment=PORT=4100
+ExecStart=/usr/bin/python -m indexer
+
+Type=simple
+Restart=always
+
+User=medonay
+
+StandardOutput=journal
+StandardError=inherit
+SyslogIdentifier=medonay
+
+[Install]
+WantedBy=multi-user.target

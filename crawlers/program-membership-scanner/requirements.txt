@@ -1,0 +1,2 @@
+python-barcode==0.8.1
+requests==2.18.4

@@ -1,9 +1,10 @@
-import DigitalDocument from './DigitalDocument';
-import Invoice from './Invoice';
 import BusReservation from './BusReservation';
+import DigitalDocument from './DigitalDocument';
 import FlightReservation from './FlightReservation';
-import TrainReservation from './TrainReservation';
+import Invoice from './Invoice';
 import ParcelDelivery from './ParcelDelivery';
+import ProgramMembership from './ProgramMembership';
+import TrainReservation from './TrainReservation';
 
 export default {
     BusReservation: {
@@ -29,5 +30,9 @@ export default {
     ParcelDelivery: {
         component: ParcelDelivery,
         icon: 'local_post_office',
+    },
+    ProgramMembership: {
+        component: ProgramMembership,
+        icon: 'account_balance_wallet',
     },
 };

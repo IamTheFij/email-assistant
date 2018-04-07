@@ -28,7 +28,7 @@ export default {
     methods: {
         fetchItems() {
             this.isLoading = true;
-            fetch(`http://localhost:4100/token?filter_type=${this.$route.params.type}`)
+            fetch(`${process.env.INDEXER_URL}/token?filter_type=${this.$route.params.type}`)
                 .then(r => r.json())
                 .then((r) => {
                     this.isLoading = false;

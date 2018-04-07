@@ -2,12 +2,14 @@ import copy
 import json
 import os
 import sys
+from functools import wraps
 
 from flask import jsonify
 from flask import request
 from flask.ext.api import status
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flask_httpauth import HTTPTokenAuth
 import flask
 
 
@@ -23,6 +25,15 @@ app.config['HOST'] = os.environ.get('HOST', '0.0.0.0')
 app.config['PORT'] = int(os.environ.get('PORT', 5000))
 
 db = SQLAlchemy(app)
+auth = HTTPTokenAuth()
+
+
+@auth.verify_token
+def verify_token(token):
+    expected_token = os.environ.get('API_TOKEN')
+    if not expected_token:
+        return True
+    return token == expected_token
 
 
 # Copyright Ferry Boender, released under the MIT license.
@@ -115,6 +126,7 @@ def check():
 
 
 @app.route('/token', methods=['POST'])
+@auth.login_required
 def create_tokens():
     """Creates a token from posted JSON request"""
     new_token = EmailToken.from_json(request.get_json(force=True))
@@ -159,6 +171,7 @@ def create_tokens():
 
 
 @app.route('/token', methods=['GET'])
+@auth.login_required
 def list_all_tokens():
     """Lists all tokens with an optional type filter"""
     token_type = request.args.get('filter_type')
@@ -167,6 +180,7 @@ def list_all_tokens():
 
 
 @app.route('/token/<string:token_id>', methods=['GET'])
+@auth.login_required
 def get_token(token_id):
     """Gets a token by its primary key id"""
     token = EmailToken.query.filter_by(token=token_id).first()

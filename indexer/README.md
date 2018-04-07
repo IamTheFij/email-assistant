@@ -1,5 +1,10 @@
 # Indexer
-Simple service to act as data layer for Email Assitant
+Simple service to act as data layer for Email Assistant
+
+You can use the `API_TOKEN` environment variable to set a token expected to be
+sent as `Authorization: Bearer ${API_TOKEN}` header with each API call to the
+API, to secure it.
+
 
 ## Healthcheck
 Path: `/`

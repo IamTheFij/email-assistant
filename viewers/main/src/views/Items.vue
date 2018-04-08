@@ -28,7 +28,15 @@ export default {
     methods: {
         fetchItems() {
             this.isLoading = true;
-            fetch(`${process.env.INDEXER_URL}/token?filter_type=${this.$route.params.type}`)
+            const headers = new Headers({});
+            if (process.env.INDEXER_TOKEN) {
+                headers.set('Authorization', `Bearer ${process.env.INDEXER_TOKEN}`);
+            }
+
+            fetch(
+                `${process.env.INDEXER_URL}/token?filter_type=${this.$route.params.type}`,
+                { headers },
+            )
                 .then(r => r.json())
                 .then((r) => {
                     this.isLoading = false;

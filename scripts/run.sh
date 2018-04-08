@@ -13,7 +13,7 @@ VIEWER_PACKAGE_TRACKING_PORT=4201
 MAIN_INDEXER_API_TOKEN=secret
 
 cd $(dirname "$0")/..
-source .env/bin/activate
+. .env/bin/activate
 
 # Parsers
 cd parsers/package-tracking && PORT=${PARSER_PACKAGE_TRACKING_PORT} bundle exec ruby main.rb &

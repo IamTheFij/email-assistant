@@ -76,13 +76,13 @@ class WeboobProxy(object):
 
         :param config: A config dict.
         """
-        backends = [
-            x.strip() for x in config['WEBOOB_CRAWLER']['backends'].split(',')
-        ]
+        backends = {}
+        for k in [x for x in config.keys() if x != 'DEFAULT']:
+            backends[k] = config[k]['backend']
 
         # Create base WebNip object
         self.webnip = WebNip(
-            modules_path=config['WEBOOB_CRAWLER']['modules_path']
+            modules_path=config['DEFAULT']['modules_path']
         )
 
         # Create backends
@@ -93,10 +93,10 @@ class WeboobProxy(object):
                 params={
                     # Get params, calling the subcommands if necessary
                     k: eventually_call_command(v)
-                    for k, v in config[module].items()
+                    for k, v in config[name].items()
                 }
             )
-            for module in backends
+            for name, module in backends.items()
         ]
 
     @staticmethod

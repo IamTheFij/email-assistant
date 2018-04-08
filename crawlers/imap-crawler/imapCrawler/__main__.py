@@ -20,6 +20,7 @@ logging.basicConfig()
 class MailCrawler(object):
     parser_urls = None
     indexer_url = os.environ['INDEXER_URL']
+    indexer_token = os.environ.get('INDEXER_TOKEN')
 
     def __init__(self):
         self.imap_url = os.environ.get('IMAP_URL')
@@ -82,9 +83,14 @@ class MailCrawler(object):
 
     def index_token(self, message):
         """Sends a token from the parser to the indexer"""
+        headers = {}
+        if self.indexer_token:
+            headers['Authorization'] = 'Bearer %s' % self.indexer_token
+
         response = requests.post(
             self.indexer_url+'/token',
             json=message,
+            headers=headers,
         )
         response.raise_for_status()
         return response.json()

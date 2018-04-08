@@ -10,6 +10,7 @@ from barcode.writer import SVGWriter
 
 if __name__ == '__main__':
     INDEXER_URL = os.environ['INDEXER_URL']
+    INDEXER_TOKEN = os.environ.get('INDEXER_TOKEN')
 
     parser = argparse.ArgumentParser(
         description='Add some membership programs.'
@@ -56,6 +57,9 @@ if __name__ == '__main__':
         metadata['image'] = image
 
     # Index token
+    headers = {}
+    if INDEXER_TOKEN:
+        headers['Authorization'] = 'Bearer %s' % INDEXER_TOKEN
     response = requests.post(
         INDEXER_URL + '/token',
         json={
@@ -63,6 +67,7 @@ if __name__ == '__main__':
             'type': metadata['@type'],
             'metadata': metadata
         },
+        headers=headers,
     )
     response.raise_for_status()
     print(response.json())

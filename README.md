@@ -73,6 +73,9 @@ the `crawler`:
 cd crawlers/imap-crawler && cat /path/to/email.eml | INDEXER_URL=http://127.0.0.1:4100 PARSER_1=http://127.0.0.1:4001 PARSER_2=http://127.0.0.1:4002 python -m imapCrawler
 ```
 
+Pass it `INDEXER_TOKEN=<token>` as well if you used a token to protect your
+indexer.
+
 
 **Note about Docker files**: The initial setup was using Docker files and
 Docker compose. I'm not using Docker, hence these files are left for

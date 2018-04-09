@@ -131,7 +131,18 @@ class WeboobProxy(object):
                     continue
                 # For each supported backend and capability, run the matching
                 # fetch function
-                data[backend.NAME][cap] = SUPPORTED_CAPS[cap](self, backend)
+                try:
+                    data[backend.NAME][cap] = SUPPORTED_CAPS[cap](
+                        self, backend
+                    )
+                except Exception as exc:
+                    LOGGER.error(
+                        ('An error occured whild fetching %s with capability '
+                         '%s: %s'),
+                        backend.NAME,
+                        cap,
+                        str(exc)
+                    )
         return data
 
 

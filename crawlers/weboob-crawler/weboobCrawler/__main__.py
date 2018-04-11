@@ -86,18 +86,27 @@ class WeboobProxy(object):
         )
 
         # Create backends
-        self.backends = [
-            self.webnip.load_backend(
-                module,
-                module,
-                params={
-                    # Get params, calling the subcommands if necessary
-                    k: eventually_call_command(v)
-                    for k, v in config[name].items()
-                }
-            )
-            for name, module in backends.items()
-        ]
+        self.backends = []
+        for name, module in backends.items():
+            try:
+                self.backends.append(
+                    self.webnip.load_backend(
+                        module,
+                        module,
+                        params={
+                            # Get params, calling the subcommands if necessary
+                            k: eventually_call_command(v)
+                            for k, v in config[name].items()
+                        }
+                    )
+                )
+            except Exception as exc:
+                LOGGER.error(
+                    'An error occured whild building backend %s: %s',
+                    name,
+                    str(exc)
+                )
+
 
     @staticmethod
     def _ensure_fully_qualified_id(item_id, backend):

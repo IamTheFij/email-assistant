@@ -34,7 +34,7 @@ def fetch_subscriptions(weboob_proxy, backend):
     return subscriptions
 
 
-def fetch_for_subscriptions(weboob_proxy, method, subscriptions):
+def fetch_for_subscriptions(weboob_proxy, method, subscriptions, backend):
     """
     Fetch related items for a given list of subscriptions.
 
@@ -42,20 +42,16 @@ def fetch_for_subscriptions(weboob_proxy, method, subscriptions):
     :param method: The method to call on the bakend to fetch items.
     :param subscriptions: A list of Weboob ``Subscription`` objects to fetch
         items from.
+    :param backend: A valid built backend to use.
     :return The list of fetched items (Weboob objects).
     """
     items = collections.defaultdict(list)
     for subscription in subscriptions:
-        # Get the backend from the subscription ID
-        weboob_backend = next(
-            x for x in weboob_proxy.backends
-            if x.NAME == subscription.id.split('@')[1]
-        )
-        for item in getattr(weboob_backend, method)(subscription):
+        for item in getattr(backend, method)(subscription):
             # Fetch all items for this subscriptions and ensure they have a
             # fully qualified id
             item.id = weboob_proxy._ensure_fully_qualified_id(
-                item.id, weboob_backend
+                item.id, backend
             )
             items[subscription.id].append(item)
     return items
@@ -144,7 +140,7 @@ def fetch(weboob_proxy, backend):
     subscriptions = fetch_subscriptions(weboob_proxy, backend)
     LOGGER.info('Found subscriptions %s.', [x.id for x in subscriptions])
     documents = fetch_for_subscriptions(
-        weboob_proxy, 'iter_documents', subscriptions
+        weboob_proxy, 'iter_documents', subscriptions, backend
     )
     LOGGER.info('Found documents %s.',
                 {k: [x.id for x in v] for k, v in documents.items()})

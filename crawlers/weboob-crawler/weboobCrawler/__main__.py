@@ -89,10 +89,11 @@ class WeboobProxy(object):
         self.backends = []
         for name, module in backends.items():
             try:
+                LOGGER.info('Building backend for %s...', name)
                 self.backends.append(
                     self.webnip.load_backend(
                         module,
-                        module,
+                        name,
                         params={
                             # Get params, calling the subcommands if necessary
                             k: eventually_call_command(v)
@@ -102,7 +103,7 @@ class WeboobProxy(object):
                 )
             except Exception as exc:
                 LOGGER.error(
-                    'An error occured whild building backend %s: %s',
+                    'An error occured while building backend %s: %s',
                     name,
                     str(exc)
                 )
@@ -134,6 +135,7 @@ class WeboobProxy(object):
         """
         data = collections.defaultdict(dict)
         for backend in self.backends:
+            LOGGER.info('Fetching data from %s...', backend.NAME)
             caps = (x.__name__ for x in backend.iter_caps())
             for cap in caps:
                 if cap not in SUPPORTED_CAPS:
@@ -146,7 +148,7 @@ class WeboobProxy(object):
                     )
                 except Exception as exc:
                     LOGGER.error(
-                        ('An error occured whild fetching %s with capability '
+                        ('An error occured while fetching %s with capability '
                          '%s: %s'),
                         backend.NAME,
                         cap,

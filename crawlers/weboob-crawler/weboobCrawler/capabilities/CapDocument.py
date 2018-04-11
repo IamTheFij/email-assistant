@@ -138,13 +138,16 @@ def fetch(weboob_proxy, backend):
     :param backend: A valid built backend to use.
     :returns: A list of schema.org serialized items to index.
     """
-    LOGGER.info('Fetching data from Weboob...')
+    LOGGER.info('Fetching data...')
 
     # First, fetch subscriptions and documents from Weboob
     subscriptions = fetch_subscriptions(weboob_proxy, backend)
+    LOGGER.info('Found subscriptions %s.', [x.id for x in subscriptions])
     documents = fetch_for_subscriptions(
         weboob_proxy, 'iter_documents', subscriptions
     )
+    LOGGER.info('Found documents %s.',
+                {k: [x.id for x in v] for k, v in documents.items()})
 
     serialized = []
     for subscription in subscriptions:

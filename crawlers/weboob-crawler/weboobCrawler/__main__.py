@@ -18,8 +18,11 @@ import collections
 import configparser
 import json
 import logging
+import os
 import subprocess
 import sys
+
+import duration
 
 from weboobCrawler.capabilities import SUPPORTED_CAPS
 from weboobCrawler.indexer import index_token
@@ -34,6 +37,8 @@ except ImportError:
     LOGGER.error("Weboob is not available on your system. Make sure you "
                  "installed it.")
     raise
+
+DEBUG = os.environ.get('DEBUG', False)
 
 
 def eventually_call_command(value):
@@ -54,6 +59,16 @@ def eventually_call_command(value):
         processed_value = processed_value.split('\n')[0].strip('\r\n\t')
         return processed_value
     return value
+
+
+class CustomJSONEncoder(WeboobEncoder):
+    """
+    Custom JSON serialization class.
+    """
+    def default(self, obj):
+        if isinstance(obj, datetime.timedelta):
+            return duration.to_iso8601(obj)
+        return super(CustomJSONEncoder, self).default(obj)
 
 
 class WeboobProxy(object):
@@ -107,6 +122,8 @@ class WeboobProxy(object):
                     name,
                     str(exc)
                 )
+                if DEBUG:
+                    raise
 
 
     @staticmethod
@@ -154,6 +171,8 @@ class WeboobProxy(object):
                         cap,
                         str(exc)
                     )
+                    if DEBUG:
+                        raise
         return data
 
 
@@ -177,7 +196,7 @@ def main(config_file):
                             'type': item['@type'],
                             'metadata': item,
                         },
-                        cls=WeboobEncoder
+                        cls=CustomJSONEncoder
                     )
                     LOGGER.info('Indexing fetched data: %s.', json_item)
                     index_token(json_item)

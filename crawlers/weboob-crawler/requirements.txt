@@ -1,3 +1,4 @@
+duration==1.1.1
 requests==2.18.4
 https://git.weboob.org/weboob/devel/repository/archive.zip?ref=master
 https://git.weboob.org/weboob/modules/repository/archive.zip?ref=master

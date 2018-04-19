@@ -137,8 +137,9 @@ class WeboobProxy(object):
         :param backend: The Weboob backend used to fetch the resource.
         :return: The fully qualified id (including the backend).
         """
-        if item_id and '@' not in item_id:
-            return '%s@%s' % (item_id, backend.NAME)
+        backend_str = '@%s' % backend.NAME
+        if item_id and not item_id.endswith(backend_str):
+            return '%s%s' % (item_id, backend_str)
         return item_id
 
     def __enter__(self):

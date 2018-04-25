@@ -47,7 +47,7 @@ def fetch_for_subscriptions(weboob_proxy, method, subscriptions, backend):
     """
     items = collections.defaultdict(list)
     for subscription in subscriptions:
-        for item in getattr(backend, method)(subscription.id.split('@')[0]):
+        for item in getattr(backend, method)(subscription.id.rsplit('@', 1)[0]):
             # Fetch all items for this subscriptions and ensure they have a
             # fully qualified id
             item.id = weboob_proxy._ensure_fully_qualified_id(

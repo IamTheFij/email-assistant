@@ -154,7 +154,7 @@ class WeboobProxy(object):
         """
         data = collections.defaultdict(dict)
         for backend in self.backends:
-            LOGGER.info('Fetching data from %s...', backend.NAME)
+            LOGGER.info('Fetching data from %s...', backend.name)
             caps = (x.__name__ for x in backend.iter_caps())
             for cap in caps:
                 if cap not in SUPPORTED_CAPS:
@@ -162,14 +162,14 @@ class WeboobProxy(object):
                 # For each supported backend and capability, run the matching
                 # fetch function
                 try:
-                    data[backend.NAME][cap] = SUPPORTED_CAPS[cap](
+                    data[backend.name][cap] = SUPPORTED_CAPS[cap](
                         self, backend
                     )
                 except Exception as exc:
                     LOGGER.error(
                         ('An error occured while fetching %s with capability '
                          '%s: %s'),
-                        backend.NAME,
+                        backend.name,
                         cap,
                         str(exc)
                     )

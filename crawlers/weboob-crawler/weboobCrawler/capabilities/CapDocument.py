@@ -156,12 +156,12 @@ def fetch(weboob_proxy, backend):
                 LOGGER.info('Downloading content for item %s.',
                             serialized_doc['identifier'])
                 mimetype = _guess_doc_mimetype(document)
-                serialized_doc['url'] = 'data:%s;base64,%s' % (
-                    mimetype,
-                    base64.b64encode(
-                        backend.download_document(document)
-                    ).decode('utf-8')
-                )
+                downloaded_document = backend.download_document(document)
+                if downloaded_document:
+                    serialized_doc['url'] = 'data:%s;base64,%s' % (
+                        mimetype,
+                        base64.b64encode(downloaded_document).decode('utf-8')
+                    )
             else:
                 # Otherwise, the document was already indexed, simply discard
                 # the URL or it will overwrite the fetched content as a data

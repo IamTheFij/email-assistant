@@ -37,6 +37,8 @@ Supported extractors (parsers) so far are:
     - [ ] More to come!
 - [x] All the [billing modules](http://weboob.org/applications/boobill) from
     Web Outside of Browsers.
+- [x] All the [calendar modules](http://weboob.org/applications/boobcoming)
+    from Web Outside of Browsers.
 
 Each microservice accepts environment variables to customize its behavior.
 These are `HOST` (for the host to bind to), `PORT` (for the port to bind to)

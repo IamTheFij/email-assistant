@@ -4,6 +4,7 @@ import io
 import os
 
 import barcode
+import magic
 import requests
 from barcode.writer import SVGWriter
 
@@ -21,7 +22,11 @@ if __name__ == '__main__':
                         help='Name of the member of the program.')
     parser.add_argument('membershipNumber', help='Number of the membership.')
     parser.add_argument('--programName', help='Name of the program.')
-    parser.add_argument('--ean', help='EAN13 barcode')
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('--ean', help='EAN13 barcode')
+    group.add_argument('--image', help='Any image for the card')
+
     args = parser.parse_args()
 
     metadata = {
@@ -38,22 +43,28 @@ if __name__ == '__main__':
         'membershipNumber': args.membershipNumber,
     }
     if args.programName:
-        metadata['programName'] == args.programName
+        metadata['programName'] = args.programName
 
     # Handle barcode generation
     image = None
     if args.ean:
         fp = io.BytesIO()
         barcode.generate('EAN13', args.ean, writer=SVGWriter(), output=fp)
-        image = fp.getvalue()
-        fp.close()
-
-    if image:
         image = (
             'data:image/svg+xml;base64,%s' % (
-                base64.b64encode(image).decode('utf-8')
+                base64.b64encode(fp.getvalue()).decode('utf-8')
             )
         )
+        fp.close()
+    elif args.image:
+        mime = magic.Magic(mime=True).from_file(args.image)
+        with open(args.image, 'rb') as fp:
+            image = 'data:%s;base64,%s' % (
+                mime,
+                base64.b64encode(fp.read()).decode('utf-8')
+            )
+
+    if image:
         metadata['image'] = image
 
     # Index token

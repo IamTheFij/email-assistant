@@ -78,7 +78,7 @@ def serialize_document(doc, subscription):
     :param subscription: The Weboob ``Subscription`` object from which the
         document was fetched.
     """
-    if doc.type != 'bill':
+    if doc.__class__.__name__ != 'Bill':
         # If this is not a bill, serialize it as a DigitalDocument
         serialized_doc = {
             '@type': 'DigitalDocument',

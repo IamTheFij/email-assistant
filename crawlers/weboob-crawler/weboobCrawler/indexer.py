@@ -2,6 +2,10 @@
 Indexer related methods, methods to communicate with the indexer.
 """
 import os
+try:
+    from urllib.parse import quote_plus
+except ImportError:
+    from urllib import quote_plus
 
 import requests
 
@@ -39,7 +43,7 @@ def is_already_indexed(token):
         headers['Authorization'] = 'Bearer %s' % INDEXER_TOKEN
 
     response = requests.get(
-        INDEXER_URL + '/token/' + token,
+        INDEXER_URL + '/token/' + quote_plus(token),
         headers=headers
     )
     return response.status_code == requests.codes.ok

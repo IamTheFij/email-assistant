@@ -8,7 +8,7 @@
             <td>{{ props.item.name }}</td>
             <td>{{ props.item.customer }}</td>
             <td>
-                <v-btn :download="props.item.filename" :href="props.item.url" icon>
+                <v-btn :download="props.item.filename" :href="props.item.url" icon v-if="props.item.url">
                     <v-icon>file_download</v-icon>
                 </v-btn>
             </td>
@@ -54,8 +54,11 @@ export default {
     },
     methods: {
         formatInvoice(item) {
-            const extension = mime.extension(item.metadata.url.split(':')[1].split(';')[0]);
-            const filename = `${item.metadata.identifier}.${extension}`;
+            let filename = null;
+            if (item.metadata.url) {
+                const extension = mime.extension(item.metadata.url.split(':')[1].split(';')[0]);
+                filename = `${item.metadata.identifier}.${extension}`;
+            }
 
             return {
                 id: item.metadata.identifier,

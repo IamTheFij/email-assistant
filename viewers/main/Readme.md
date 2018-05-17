@@ -18,4 +18,8 @@ npm run build
 npm run build --report
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+If you are using an indexer at a custom location and password-protected, pass
+the environment variables:
+* `INDEXER_URL="The URL to your indexer"`
+* `INDEXER_TOKEN="The password of your indexer"`
+to the `npm run build`/`npm run dev` commands.

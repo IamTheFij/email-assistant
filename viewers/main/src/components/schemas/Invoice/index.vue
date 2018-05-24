@@ -64,7 +64,7 @@ export default {
                 id: item.metadata.identifier,
                 date: moment(item.metadata.date).local().format('HH:mm DD/MM/YYYY'),
                 name: item.metadata.name,
-                customer: item.metadata.customer.name,
+                customer: item.metadata.customer ? item.metadata.customer.name : null,
                 url: item.metadata.url,
                 filename,
             };

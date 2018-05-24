@@ -1,12 +1,14 @@
 <template>
     <v-data-table
         :headers="headers"
-        :items="tableItems">
+        :items="tableItems"
+        :pagination.sync="pagination">
         <template slot="items" slot-scope="props">
-            <td>{{ props.item.id }}</td>
-            <td>{{ props.item.date }}</td>
+            <td>{{ formatDate(props.item.date) }}</td>
             <td>{{ props.item.name }}</td>
             <td>{{ props.item.customer }}</td>
+            <td>{{ props.item.payment }}</td>
+            <td>{{ props.item.id }}</td>
             <td>
                 <v-btn :download="props.item.filename" :href="props.item.url" icon v-if="props.item.url">
                     <v-icon>file_download</v-icon>
@@ -30,10 +32,6 @@ export default {
         return {
             headers: [
                 {
-                    text: '#',
-                    value: 'id',
-                },
-                {
                     text: 'Date',
                     value: 'date',
                 },
@@ -46,10 +44,24 @@ export default {
                     value: 'customer',
                 },
                 {
+                    text: 'Payment',
+                    value: 'payment',
+                },
+                {
+                    text: '#',
+                    value: 'id',
+                },
+                {
                     text: '',
                     value: '',
+                    sortable: false,
                 },
             ],
+            pagination: {
+                rowsPerPage: 15,
+                sortBy: 'date',
+                descending: true,
+            },
         };
     },
     methods: {
@@ -62,12 +74,30 @@ export default {
 
             return {
                 id: item.metadata.identifier,
-                date: moment(item.metadata.date).local().format('HH:mm DD/MM/YYYY'),
+                date: item.metadata.date,
                 name: item.metadata.name,
                 customer: item.metadata.customer ? item.metadata.customer.name : null,
+                payment: (
+                    item.metadata.totalPaymentDue ?
+                    this.formatCurrency(item.metadata.totalPaymentDue) :
+                    null
+                ),
                 url: item.metadata.url,
                 filename,
             };
+        },
+        formatCurrency(cost) {
+            if (cost.value) {
+                let formattedCost = cost.value;
+                if (cost.currency) {
+                    formattedCost = `${formattedCost} ${cost.currency}`;
+                }
+                return formattedCost;
+            }
+            return null;
+        },
+        formatDate(date) {
+            return moment(date).local().format('DD/MM/YYYY');
         },
     },
     props: {

@@ -1,22 +1,43 @@
 <template>
-    <v-data-table
-        :headers="headers"
-        :items="tableItems">
-        <template slot="items" slot-scope="props">
-            <td>{{ props.item.id }}</td>
-            <td>{{ props.item.organizationName }}</td>
-            <td>{{ props.item.programName }}</td>
-            <td>{{ props.item.memberName }}</td>
-            <td>{{ props.item.membershipNumber }}</td>
-            <td><img :src="props.item.image" v-if="props.item.image"/></td>
-        </template>
-    </v-data-table>
+<v-container
+  fluid
+  style="min-height: 0;"
+  grid-list-lg
+  >
+  <v-layout row wrap>
+    <v-flex xs4 v-for="item in formattedItems">
+      <v-card color="cyan darken-2" class="white--text">
+        <v-container fluid grid-list-lg>
+          <v-layout row>
+            <v-flex xs7>
+              <div>
+                <div class="headline">
+                  {{ item.organizationName }}
+                  <template v-if="item.programName">
+                    - {{ item.programName }}
+                  </template>
+                </div>
+                <div>{{ item.memberName }}</div>
+                <div>{{ item.membershipNumber }}</div>
+              </div>
+            </v-flex>
+            <v-flex xs5 class="center">
+              <img
+                :src="item.image"
+                height="125px"/>
+            </v-flex>
+          </v-layout>
+        </v-container>
+      </v-card>
+    </v-flex>
+  </v-layout>
+</v-container>
 </template>
 
 <script>
 export default {
     computed: {
-        tableItems() {
+        formattedItems() {
             return this.items.map(this.formatItem);
         },
     },
@@ -70,7 +91,11 @@ export default {
 
 <style scoped>
 img {
-    max-height: 100px;
-    max-width: 100px;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+.center {
+  text-align: center;
 }
 </style>

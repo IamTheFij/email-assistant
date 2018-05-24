@@ -1,12 +1,12 @@
 <template>
     <v-data-table
         :headers="headers"
-        :items="tableItems">
+        :items="tableItems"
+        :pagination.sync="pagination">
         <template slot="items" slot-scope="props">
-            <td>{{ props.item.id }}</td>
             <td>{{ props.item.date }}</td>
             <td>{{ props.item.name }}</td>
-            <td>{{ props.item.type }}</td>
+            <td>{{ props.item.id }}</td>
             <td>
                 <v-btn :download="props.item.filename" :href="props.item.url" icon v-if="props.item.url">
                     <v-icon>file_download</v-icon>
@@ -29,10 +29,6 @@ export default {
         return {
             headers: [
                 {
-                    text: '#',
-                    value: 'id',
-                },
-                {
                     text: 'Date',
                     value: 'date',
                 },
@@ -41,25 +37,32 @@ export default {
                     value: 'name',
                 },
                 {
-                    text: 'Type',
-                    value: 'type',
+                    text: '#',
+                    value: 'id',
                 },
                 {
                     text: '',
                     value: '',
+                    sortable: false,
                 },
             ],
+            pagination: {
+                sortBy: 'date',
+                descending: true,
+            },
         };
     },
     methods: {
         formatDigitalDocument(item) {
             return {
                 id: item.metadata.identifier,
-                date: moment(item.metadata.dateCreated).local().format('HH:mm DD/MM/YYYY'),
+                date: item.metadata.dateCreated,
                 name: item.metadata.name,
-                type: item.metadata.additionalType,
                 url: item.metadata.url,
             };
+        },
+        formatDate(date) {
+            return moment(date).local().format('DD/MM/YYYY');
         },
     },
     props: {

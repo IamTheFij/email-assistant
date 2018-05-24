@@ -7,6 +7,11 @@
             <td>{{ props.item.date }}</td>
             <td>{{ props.item.name }}</td>
             <td>{{ props.item.type }}</td>
+            <td>
+                <v-btn :download="props.item.filename" :href="props.item.url" icon v-if="props.item.url">
+                    <v-icon>file_download</v-icon>
+                </v-btn>
+            </td>
         </template>
     </v-data-table>
 </template>
@@ -39,6 +44,10 @@ export default {
                     text: 'Type',
                     value: 'type',
                 },
+                {
+                    text: '',
+                    value: '',
+                },
             ],
         };
     },
@@ -49,6 +58,7 @@ export default {
                 date: moment(item.metadata.dateCreated).local().format('HH:mm DD/MM/YYYY'),
                 name: item.metadata.name,
                 type: item.metadata.additionalType,
+                url: item.metadata.url,
             };
         },
     },

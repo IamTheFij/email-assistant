@@ -24,7 +24,7 @@ if __name__ == '__main__':
     parser.add_argument('--programName', help='Name of the program.')
 
     group = parser.add_mutually_exclusive_group()
-    group.add_argument('--ean', help='EAN13 barcode')
+    group.add_argument('--barcode', help='Barcode of the form TYPE:DATA with TYPE a valid type from https://github.com/WhyNotHugo/python-barcode/blob/master/barcode/__init__.py#L29-L50.')
     group.add_argument('--image', help='Any image for the card')
 
     args = parser.parse_args()
@@ -47,9 +47,12 @@ if __name__ == '__main__':
 
     # Handle barcode generation
     image = None
-    if args.ean:
+    if args.barcode:
+        barcode_type, barcode_data = args.barcode.split(':', 1)
+
         fp = io.BytesIO()
-        barcode.generate('EAN13', args.ean, writer=SVGWriter(), output=fp)
+        barcode.generate(barcode_type, barcode_data,
+                         writer=SVGWriter(), output=fp)
         image = (
             'data:image/svg+xml;base64,%s' % (
                 base64.b64encode(fp.getvalue()).decode('utf-8')

@@ -1,11 +1,7 @@
-from datetime import date
 from datetime import datetime
 from datetime import timedelta
-from getpass import getpass
 from time import sleep
 from imaplib import IMAP4
-import email
-import json
 import os
 
 from dateutil import parser
@@ -14,7 +10,12 @@ from imbox import Imbox
 import requests
 
 
-VALID_CONTENT_TYPES = [ 'text/plain', 'text/html' ]
+VALID_CONTENT_TYPES = ['text/plain', 'text/html']
+
+
+def get_message_subject(message):
+    """Returns message subject or a placeholder text"""
+    return getattr(message, 'subject', 'NO SUBJECT')
 
 
 class MailCrawler(object):
@@ -53,7 +54,7 @@ class MailCrawler(object):
             response = requests.post(
                 parser_host+'/parse',
                 json={
-                    'subject': message.subject,
+                    'subject': get_message_subject(message),
                     'message': text,
                 },
             )
@@ -97,18 +98,21 @@ class MailCrawler(object):
             print('Parsed result: ', result)
             print('Indexed result: ', self.index_token(result))
 
-
     def process_messages(self, server, since_date, last_message=0):
         for uid, message in server.messages(date__gt=since_date):
             uid = int(uid)
             if uid <= last_message:
-                print('DDB Already seen message with uid {}. Skipping'.format(uid))
+                print(
+                    'DDB Already seen message with uid {}. Skipping'.format(uid)
+                )
                 continue
 
             print(
                 'Processing message uid {} message_id {} '
                 'with subject "{}"'.format(
-                    uid, message.message_id, message.subject
+                    uid,
+                    message.message_id,
+                    get_message_subject(message),
                 )
             )
             self.process_message(message)
@@ -123,7 +127,6 @@ class MailCrawler(object):
             last_message = max(uid, last_message)
 
         return since_date, last_message
-
 
     def run(self):
         print('Starting crawler')

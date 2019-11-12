@@ -6,45 +6,46 @@ import requests
 
 
 app = flask.Flask(__name__)
-app.config['DEBUG'] = True
+app.config["DEBUG"] = True
 
-indexer_url = os.environ.get('INDEXER_URL', 'http://indexer')
+indexer_url = os.environ.get("INDEXER_URL", "http://indexer")
 
 
-@app.route('/healthcheck')
+@app.route("/healthcheck")
 def healthcheck():
-    return 'OK'
+    return "OK"
 
-@app.route('/')
+
+@app.route("/")
 def home():
-    return flask.render_template('home.html')
+    return flask.render_template("home.html")
 
 
-@app.route('/shipping')
+@app.route("/shipping")
 def get_tokens():
     resp = requests.get(
-        indexer_url+'/token',
+        indexer_url + "/token",
         params={
-            'filter_type': 'SHIPPING',
-            'desc': True,
+            "filter_type": "SHIPPING",
+            "desc": True,
         },
     )
     resp.raise_for_status()
-    tokens = resp.json().get('tokens')
+    tokens = resp.json().get("tokens")
     for token in tokens:
         try:
             resp = requests.get(
-                'http://viewer_package_tracking:3000/info/'+token['token']
+                "http://viewer_package_tracking:3000/info/" + token["token"]
             )
             resp.raise_for_status()
-            print('Response: ', resp.text, file=sys.stderr)
+            print("Response: ", resp.text, file=sys.stderr)
             info = resp.json()
-            token['metadata'].update(info)
+            token["metadata"].update(info)
         except Exception as e:
-            print('Error', e, file=sys.stderr)
+            print("Error", e, file=sys.stderr)
             pass
-    return flask.render_template('shipping.html', trackers=tokens)
+    return flask.render_template("shipping.html", trackers=tokens)
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)

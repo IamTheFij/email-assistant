@@ -13,36 +13,34 @@ from imbox import Imbox
 
 
 logging.basicConfig(
-    level=logging.WARNING,
-    format='%(asctime)s %(levelname)s %(name)s %(message)s'
+    level=logging.WARNING, format="%(asctime)s %(levelname)s %(name)s %(message)s"
 )
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
-VALID_CONTENT_TYPES = ['text/plain', 'text/html']
+VALID_CONTENT_TYPES = ["text/plain", "text/html"]
 
 
 def get_message_subject(message):
     """Returns message subject or a placeholder text"""
-    return getattr(message, 'subject', 'NO SUBJECT')
+    return getattr(message, "subject", "NO SUBJECT")
 
 
 class MailCrawler(object):
-
     def __init__(self):
         self._logger = logging.getLogger(self.__class__.__name__)
-        self.imap_url = os.environ['IMAP_URL']
-        self.imap_user = os.environ['IMAP_USER']
-        self.imap_pass = os.environ['IMAP_PASS']
+        self.imap_url = os.environ["IMAP_URL"]
+        self.imap_user = os.environ["IMAP_USER"]
+        self.imap_pass = os.environ["IMAP_PASS"]
         self.parser_hosts = None
-        self.indexer_host = os.environ.get('INDEXER')
-        self.debug_mode = os.environ.get('DEBUG', False)
+        self.indexer_host = os.environ.get("INDEXER")
+        self.debug_mode = os.environ.get("DEBUG", False)
 
     def get_parsers(self):
         """Retrieves a list of parser hosts"""
         if self.parser_hosts is None:
             self.parser_hosts = []
-            parser_format = 'PARSER_{}'
+            parser_format = "PARSER_{}"
             parser_index = 1
             parser_host = os.environ.get(parser_format.format(parser_index))
             while parser_host is not None:
@@ -56,21 +54,21 @@ class MailCrawler(object):
         """Parses tokens from an email message"""
         text = self.get_email_text(message)
         if not text:
-            print('No email text returned')
+            print("No email text returned")
             return []
 
         results = []
         for parser_host in self.get_parsers():
             # print('Parsing email text... ', text)
             response = requests.post(
-                parser_host+'/parse',
+                parser_host + "/parse",
                 json={
-                    'subject': get_message_subject(message),
-                    'message': text,
+                    "subject": get_message_subject(message),
+                    "message": text,
                 },
             )
             response.raise_for_status()
-            print('Got response', response.text)
+            print("Got response", response.text)
             results += response.json()
         return results
 
@@ -85,18 +83,18 @@ class MailCrawler(object):
 
     def get_email_text(self, message):
         """Retrieves the text body of an email message"""
-        body = message.body.get('plain') or message.body.get('html')
+        body = message.body.get("plain") or message.body.get("html")
         if not body:
             return None
         # Concat all known body content together since it doesn't really matter
-        return ''.join([text for text in body if isinstance(text, str)])
+        return "".join([text for text in body if isinstance(text, str)])
 
     def index_token(self, message):
         """Sends a token from the parser to the indexer"""
         if self.indexer_host is None and self.debug_mode:
             print("DDB No indexer host, but OK for debugging")
         response = requests.post(
-            self.indexer_host+'/token',
+            self.indexer_host + "/token",
             json=message,
         )
         response.raise_for_status()
@@ -105,9 +103,11 @@ class MailCrawler(object):
     def process_message(self, message):
         """Process a single email message"""
         for result in self.parse_message(message):
-            result.update({
-                "subject": message.subject,
-            })
+            result.update(
+                {
+                    "subject": message.subject,
+                }
+            )
             print("Parsed result: ", result)
             print("Indexed result: ", self.index_token(result))
 
@@ -138,14 +138,13 @@ class MailCrawler(object):
             message_date = parser.parse(message.date)
             self._logger.debug(
                 "DDB Processed message. Message date: %s Old date: %s",
-                message_date, since_date
+                message_date,
+                since_date,
             )
             try:
                 since_date = max(since_date, message_date)
             except TypeError:
-                self._logger.error(
-                    "Error comparing dates. We'll just use the last one"
-                )
+                self._logger.error("Error comparing dates. We'll just use the last one")
             self._logger.debug("DDB Since date is now %s", since_date)
             last_uid = max(uid, last_uid)
 
@@ -155,16 +154,22 @@ class MailCrawler(object):
         """Parses command line arguments and returns them"""
         parser = ArgumentParser(description="Inbox crawler")
         parser.add_argument(
-            "--sleep", "-s",
-            default=10*60,
-            help=("Number of seconds to wait between polling IMAP server."
-                  "Default 10 min"),
+            "--sleep",
+            "-s",
+            default=10 * 60,
+            help=(
+                "Number of seconds to wait between polling IMAP server."
+                "Default 10 min"
+            ),
         )
         parser.add_argument(
-            "--verbosity", "-v",
+            "--verbosity",
+            "-v",
             action="count",
-            help=("Adjust log verbosity by increasing arg count. Default log",
-                  "level is ERROR. Level increases with each `v`"),
+            help=(
+                "Adjust log verbosity by increasing arg count. Default log",
+                "level is ERROR. Level increases with each `v`",
+            ),
         )
         return parser.parse_args(args)
 
@@ -186,7 +191,7 @@ class MailCrawler(object):
         if args.verbosity:
             self._set_log_level(args.verbosity)
 
-        self._logger.info('Starting crawler')
+        self._logger.info("Starting crawler")
         with self.get_server() as server:
             # TODO: parameterize startup date, maybe relative
             since_date = datetime.now(tzutc()) - timedelta(days=16)
@@ -194,9 +199,7 @@ class MailCrawler(object):
             while True:
                 print("Processing messages")
                 since_date, last_uid = self.process_messages(
-                    server,
-                    since_date,
-                    last_uid=last_uid
+                    server, since_date, last_uid=last_uid
                 )
                 self._logger.info(
                     "DDB Processed all. New since_date %s",
@@ -205,10 +208,10 @@ class MailCrawler(object):
                 sleep(args.sleep)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     while True:
         try:
             MailCrawler().run()
         except IMAP4.abort:
-            print('Imap abort. We will try to reconnect')
+            print("Imap abort. We will try to reconnect")
             pass

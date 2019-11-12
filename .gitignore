@@ -126,3 +126,4 @@ _testmain.go
 .DS_Store
 .env
 docker-compose-prod.yml
+.mypy_cache

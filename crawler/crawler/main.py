@@ -122,7 +122,10 @@ class MailCrawler(object):
             print('DDB Processed message. Message date: {} Old date: {}'.format(
                 message_date, since_date
             ))
-            since_date = max(since_date, message_date)
+            try:
+                since_date = max(since_date, message_date)
+            except TypeError:
+                print("Error comparing dates. We'll just use the last one")
             print('DDB Since date is now ', since_date)
             last_message = max(uid, last_message)
 

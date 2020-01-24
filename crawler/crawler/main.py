@@ -1,13 +1,22 @@
+import logging
+import os
+from argparse import ArgumentParser
 from datetime import datetime
 from datetime import timedelta
-from time import sleep
 from imaplib import IMAP4
-import os
+from time import sleep
 
+import requests
 from dateutil import parser
 from dateutil.tz import tzutc
 from imbox import Imbox
-import requests
+
+
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s %(levelname)s %(name)s %(message)s'
+)
+logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
 VALID_CONTENT_TYPES = ['text/plain', 'text/html']
@@ -19,13 +28,15 @@ def get_message_subject(message):
 
 
 class MailCrawler(object):
-    parser_hosts = None
-    indexer_host = os.environ['INDEXER']
 
     def __init__(self):
+        self._logger = logging.getLogger(self.__class__.__name__)
         self.imap_url = os.environ['IMAP_URL']
         self.imap_user = os.environ['IMAP_USER']
         self.imap_pass = os.environ['IMAP_PASS']
+        self.parser_hosts = None
+        self.indexer_host = os.environ.get('INDEXER')
+        self.debug_mode = os.environ.get('DEBUG', False)
 
     def get_parsers(self):
         """Retrieves a list of parser hosts"""
@@ -82,6 +93,8 @@ class MailCrawler(object):
 
     def index_token(self, message):
         """Sends a token from the parser to the indexer"""
+        if self.indexer_host is None and self.debug_mode:
+            print("DDB No indexer host, but OK for debugging")
         response = requests.post(
             self.indexer_host+'/token',
             json=message,
@@ -93,62 +106,103 @@ class MailCrawler(object):
         """Process a single email message"""
         for result in self.parse_message(message):
             result.update({
-                'subject': message.subject,
+                "subject": message.subject,
             })
-            print('Parsed result: ', result)
-            print('Indexed result: ', self.index_token(result))
+            print("Parsed result: ", result)
+            print("Indexed result: ", self.index_token(result))
 
-    def process_messages(self, server, since_date, last_message=0):
-        for uid, message in server.messages(date__gt=since_date):
+    def process_messages(self, server, since_date, last_uid=0):
+        kwargs = {}
+        if last_uid > 0:
+            kwargs["uid__range"] = "{}:*".format(last_uid)
+        else:
+            kwargs["date__gt"] = since_date
+        self._logger.info("Mailbox search kwargs %s", kwargs)
+        for uid, message in server.messages(**kwargs):
             uid = int(uid)
-            if uid <= last_message:
-                print(
-                    'DDB Already seen message with uid {}. Skipping'.format(uid)
+            if uid <= last_uid:
+                self._logger.debug(
+                    "DDB Already seen message with uid {}. Skipping".format(uid)
                 )
                 continue
 
-            print(
-                'Processing message uid {} message_id {} '
-                'with subject "{}"'.format(
-                    uid,
-                    message.message_id,
-                    get_message_subject(message),
-                )
+            self._logger.info(
+                "Processing message uid %s message_id %s with subject '%s'",
+                uid,
+                message.message_id,
+                get_message_subject(message),
             )
             self.process_message(message)
 
             # Update since_date
             message_date = parser.parse(message.date)
-            print('DDB Processed message. Message date: {} Old date: {}'.format(
+            self._logger.debug(
+                "DDB Processed message. Message date: %s Old date: %s",
                 message_date, since_date
-            ))
+            )
             try:
                 since_date = max(since_date, message_date)
             except TypeError:
-                print("Error comparing dates. We'll just use the last one")
-            print('DDB Since date is now ', since_date)
-            last_message = max(uid, last_message)
+                self._logger.error(
+                    "Error comparing dates. We'll just use the last one"
+                )
+            self._logger.debug("DDB Since date is now %s", since_date)
+            last_uid = max(uid, last_uid)
 
-        return since_date, last_message
+        return since_date, last_uid
 
-    def run(self):
-        print('Starting crawler')
-        # TODO: Put server into some kind of context manager and property
+    def _parse_args(self, args=None):
+        """Parses command line arguments and returns them"""
+        parser = ArgumentParser(description="Inbox crawler")
+        parser.add_argument(
+            "--sleep", "-s",
+            default=10*60,
+            help=("Number of seconds to wait between polling IMAP server."
+                  "Default 10 min"),
+        )
+        parser.add_argument(
+            "--verbosity", "-v",
+            action="count",
+            help=("Adjust log verbosity by increasing arg count. Default log",
+                  "level is ERROR. Level increases with each `v`"),
+        )
+        return parser.parse_args(args)
+
+    def _set_log_level(self, verbosity):
+        """Sets the log level for the class using the provided verbosity count"""
+        if verbosity == 1:
+            # Set this logger to info
+            self._logger.setLevel(logging.INFO)
+        elif verbosity == 2:
+            # Set this logger to debug and root to info
+            logging.getLogger().setLevel(logging.INFO)
+            self._logger.setLevel(logging.DEBUG)
+        elif verbosity >= 3:
+            # Set the root logger to debug
+            logging.getLogger().setLevel(logging.DEBUG)
+
+    def run(self, args=None):
+        args = self._parse_args(args=args)
+        if args.verbosity:
+            self._set_log_level(args.verbosity)
+
+        self._logger.info('Starting crawler')
         with self.get_server() as server:
             # TODO: parameterize startup date, maybe relative
-            since_date = datetime.now(tzutc()) - timedelta(days=15)
-            last_message = 0
+            since_date = datetime.now(tzutc()) - timedelta(days=16)
+            last_uid = 0
             while True:
-                print('Lets process')
-                since_date, last_message = self.process_messages(
+                print("Processing messages")
+                since_date, last_uid = self.process_messages(
                     server,
                     since_date,
-                    last_message=last_message
+                    last_uid=last_uid
                 )
-                print('DDB Processed all. New since_date', since_date)
-                # TODO: parameterize sleep
-                # Sleep for 10 min
-                sleep(10 * 60)
+                self._logger.info(
+                    "DDB Processed all. New since_date %s",
+                    since_date,
+                )
+                sleep(args.sleep)
 
 
 if __name__ == '__main__':

@@ -8,3 +8,5 @@ services:
       IMAP_URL: my.iamthefij.com
       IMAP_USER: iamthefij@iamthefij.com
       IMAP_PASS: "${IMAP_PASS}"
+      INDEXER: http://indexer:5000
+      PARSER_1: http://parser_package_tracking:3000

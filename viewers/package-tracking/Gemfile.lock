@@ -28,7 +28,7 @@ GEM
     nokogiri (1.8.2)
       mini_portile2 (~> 2.3.0)
     nori (2.3.0)
-    rack (2.0.4)
+    rack (2.2.3)
     rack-protection (2.0.1)
       rack
     rubyntlm (0.3.4)

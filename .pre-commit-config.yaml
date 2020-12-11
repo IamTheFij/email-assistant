@@ -1,0 +1,39 @@
+---
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.3.0
+    hooks:
+      - id: check-added-large-files
+      - id: check-yaml
+        args:
+          - --allow-multiple-documents
+      - id: check-json
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      # Python
+      - id: debug-statements
+      - id: check-merge-conflict
+      - id: name-tests-test
+      # exclude: tests/(common.py|util.py|(helpers)/(.+).py)
+  - repo: https://github.com/psf/black
+    rev: 20.8b1
+    hooks:
+      - id: black
+  - repo: git://github.com/asottile/reorder_python_imports
+    rev: v2.3.6
+    hooks:
+      - id: reorder-python-imports
+        args:
+          - --py3-plus
+  - repo: git://github.com/dnephin/pre-commit-golang
+    rev: v0.3.5
+    hooks:
+      - id: go-fmt
+      - id: go-imports
+      - id: golangci-lint
+# - repo: git://github.com/jumanjihouse/pre-commit-hooks
+#   rev: 1.11.0
+#   hooks:
+#     - id: rubocop
+#     - id: fasterer
